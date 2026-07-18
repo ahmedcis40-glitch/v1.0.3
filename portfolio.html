@@ -1,0 +1,415 @@
+<!-- Mon Portefeuille - Éléphant Bourse -->
+<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Éléphant Bourse - Mon Portefeuille</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "on-background": "#1a1c1e", "surface-dim": "#dadadc", "on-secondary-fixed": "#002110",
+          "background": "#f9f9fc", "surface-container-highest": "#e2e2e5",
+          "on-tertiary-fixed-variant": "#454747", "on-tertiary-fixed": "#1a1c1c",
+          "error": "#ba1a1a", "secondary-fixed-dim": "#61dd98", "secondary": "#006d40",
+          "secondary-fixed": "#7efab3", "on-surface-variant": "#574235", "on-error": "#ffffff",
+          "on-primary-container": "#5f2c00", "tertiary-container": "#a3a4a4",
+          "surface-container": "#eeeef0", "outline": "#8b7263", "error-container": "#ffdad6",
+          "on-secondary-fixed-variant": "#00522f", "surface-tint": "#954a00",
+          "primary-container": "#ff8200", "surface": "#f9f9fc",
+          "on-secondary-container": "#007244", "on-tertiary": "#ffffff",
+          "primary-fixed": "#ffdcc6", "primary-fixed-dim": "#ffb785", "on-secondary": "#ffffff",
+          "tertiary-fixed-dim": "#c6c6c7", "surface-container-lowest": "#ffffff",
+          "on-primary-fixed-variant": "#723700", "tertiary-fixed": "#e2e2e2",
+          "surface-bright": "#f9f9fc", "on-error-container": "#93000a",
+          "surface-container-high": "#e8e8ea", "surface-variant": "#e2e2e5",
+          "on-tertiary-container": "#383a3b", "inverse-surface": "#2f3133",
+          "inverse-primary": "#ffb785", "tertiary": "#5d5f5f", "primary": "#954a00",
+          "on-primary-fixed": "#301400", "secondary-container": "#7bf7b0",
+          "on-primary": "#ffffff", "on-surface": "#1a1c1e", "outline-variant": "#dec1af",
+          "inverse-on-surface": "#f0f0f3", "surface-container-low": "#f3f3f6"
+        },
+        borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+        fontFamily: {
+          "title-md": ["Inter"], "label-md": ["JetBrains Mono"], "educational-quote": ["Inter"],
+          "body-lg": ["Inter"], "body-sm": ["Inter"], "display-lg": ["Inter"],
+          "headline-lg": ["Inter"], "headline-lg-mobile": ["Inter"]
+        },
+        fontSize: {
+          "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+          "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+          "educational-quote": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+          "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+          "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+          "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+          "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+          "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  body { background-color: #f9f9fc; color: #1a1c1e; -webkit-font-smoothing: antialiased; }
+</style>
+</head>
+<body class="pb-24 min-h-screen">
+
+  <!-- Top App Bar -->
+  <header class="sticky top-0 z-40 bg-surface border-b border-surface-container-highest flex items-center justify-between px-4 md:px-16 w-full h-16">
+    <div class="flex items-center gap-3">
+      <button onclick="window.location.href='index.html'" class="p-2 -ml-2 rounded-full hover:bg-surface-container-low transition-colors">
+        <span class="material-symbols-outlined text-on-surface-variant">arrow_back</span>
+      </button>
+      <h1 class="font-title-md text-title-md text-on-background">Mon Portefeuille</h1>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low transition-colors p-2 rounded-full">more_vert</button>
+    </div>
+  </header>
+
+  <main class="max-w-[1280px] mx-auto px-4 md:px-16 py-6 space-y-6">
+
+    <!-- Portfolio Summary Card -->
+    <div class="p-6 md:p-8 rounded-xl overflow-hidden relative" style="background: linear-gradient(135deg, #954a00 0%, #ff8200 60%, #ffb785 100%);">
+      <div class="absolute top-0 right-0 opacity-10 pointer-events-none">
+        <span class="material-symbols-outlined" style="font-size: 180px; color: white;">account_balance_wallet</span>
+      </div>
+      <div class="relative z-10">
+        <p class="font-label-md text-label-md text-white/70 uppercase tracking-wider mb-2">Valeur Totale du Portefeuille</p>
+        <div class="flex items-baseline gap-3 mb-4">
+          <span class="text-white font-display-lg text-display-lg">1 450 000</span>
+          <span class="text-white/80 font-title-md text-title-md">FCFA</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1 px-3 py-1 bg-white/20 rounded-full backdrop-blur-sm">
+            <span class="material-symbols-outlined text-white" style="font-size:14px; font-variation-settings:'FILL' 1;">arrow_upward</span>
+            <span class="font-label-md text-label-md text-white">+36 250 FCFA (2.56%)</span>
+          </div>
+          <span class="font-label-md text-label-md text-white/60">depuis hier</span>
+        </div>
+        <!-- Quick stats -->
+        <div class="mt-6 grid grid-cols-3 gap-4">
+          <div class="bg-white/15 rounded-xl p-3 backdrop-blur-sm">
+            <p class="font-label-md text-label-md text-white/70">Investi</p>
+            <p class="font-title-md text-title-md text-white">1 200 000</p>
+            <p class="font-label-md text-label-md text-white/70">FCFA</p>
+          </div>
+          <div class="bg-white/15 rounded-xl p-3 backdrop-blur-sm">
+            <p class="font-label-md text-label-md text-white/70">Plus-value</p>
+            <p class="font-title-md text-title-md text-white">+250 000</p>
+            <p class="font-label-md text-label-md text-white/70">FCFA</p>
+          </div>
+          <div class="bg-white/15 rounded-xl p-3 backdrop-blur-sm">
+            <p class="font-label-md text-label-md text-white/70">Rendement</p>
+            <p class="font-title-md text-title-md text-white">+20.8%</p>
+            <p class="font-label-md text-label-md text-white/70">total</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Allocation Pie + Info -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Allocation -->
+      <div class="p-6 bg-white rounded-xl border border-surface-container-highest">
+        <h2 class="font-title-md text-title-md text-on-background mb-4">Répartition Sectorielle</h2>
+        <!-- SVG Donut -->
+        <div class="flex items-center gap-6">
+          <svg viewBox="0 0 120 120" class="w-32 h-32 flex-shrink-0" style="transform: rotate(-90deg)">
+            <!-- Télécoms 45% -->
+            <circle cx="60" cy="60" r="40" fill="none" stroke="#006d40" stroke-width="20" stroke-dasharray="113 251" stroke-dashoffset="0"/>
+            <!-- Banque 30% -->
+            <circle cx="60" cy="60" r="40" fill="none" stroke="#ff8200" stroke-width="20" stroke-dasharray="75 251" stroke-dashoffset="-113"/>
+            <!-- Assurance 15% -->
+            <circle cx="60" cy="60" r="40" fill="none" stroke="#ffb785" stroke-width="20" stroke-dasharray="38 251" stroke-dashoffset="-188"/>
+            <!-- Industrie 10% -->
+            <circle cx="60" cy="60" r="40" fill="none" stroke="#e2e2e5" stroke-width="20" stroke-dasharray="25 251" stroke-dashoffset="-226"/>
+            <circle cx="60" cy="60" r="30" fill="white"/>
+          </svg>
+          <div class="flex flex-col gap-2 flex-1">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-secondary flex-shrink-0"></div>
+              <span class="font-body-sm text-body-sm text-on-surface-variant flex-1">Télécoms</span>
+              <span class="font-label-md text-label-md text-on-background">45%</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-primary-container flex-shrink-0"></div>
+              <span class="font-body-sm text-body-sm text-on-surface-variant flex-1">Banque</span>
+              <span class="font-label-md text-label-md text-on-background">30%</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-primary-fixed-dim flex-shrink-0"></div>
+              <span class="font-body-sm text-body-sm text-on-surface-variant flex-1">Assurance</span>
+              <span class="font-label-md text-label-md text-on-background">15%</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-surface-container-highest flex-shrink-0"></div>
+              <span class="font-body-sm text-body-sm text-on-surface-variant flex-1">Industrie</span>
+              <span class="font-label-md text-label-md text-on-background">10%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dividendes & Performances -->
+      <div class="p-6 bg-white rounded-xl border border-surface-container-highest space-y-4">
+        <h2 class="font-title-md text-title-md text-on-background">Mes Revenus</h2>
+        <div class="p-4 bg-secondary-container rounded-xl">
+          <p class="font-label-md text-label-md text-on-secondary-container">DIVIDENDES REÇUS (2024)</p>
+          <p class="font-display-lg text-[32px] leading-tight text-on-background mt-1">45 800 <span class="font-label-md text-title-md text-on-surface-variant">FCFA</span></p>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 bg-surface-container-low rounded-xl">
+            <p class="font-label-md text-label-md text-on-surface-variant">Ordres en cours</p>
+            <p class="font-title-md text-title-md text-primary mt-1">2 ordres</p>
+          </div>
+          <div class="p-3 bg-surface-container-low rounded-xl">
+            <p class="font-label-md text-label-md text-on-surface-variant">Titres détenus</p>
+            <p class="font-title-md text-title-md text-on-background mt-1">12 titres</p>
+          </div>
+        </div>
+        <button onclick="window.location.href='market.html'" class="w-full py-3 bg-primary text-on-primary rounded-lg font-title-md hover:opacity-90 active:scale-95 transition-all">
+          Acheter des actions
+        </button>
+      </div>
+    </div>
+
+    <!-- Holdings List -->
+    <div class="bg-white rounded-xl border border-surface-container-highest overflow-hidden">
+      <div class="p-6 border-b border-surface-container-highest flex items-center justify-between">
+        <h2 class="font-title-md text-title-md text-on-background">Mes Positions</h2>
+        <div class="flex gap-2">
+          <button class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full font-label-md text-label-md">Toutes</button>
+          <button class="px-3 py-1 text-on-surface-variant rounded-full font-label-md text-label-md hover:bg-surface-container-low transition-colors">Gain</button>
+          <button class="px-3 py-1 text-on-surface-variant rounded-full font-label-md text-label-md hover:bg-surface-container-low transition-colors">Perte</button>
+        </div>
+      </div>
+
+      <!-- Table Header -->
+      <div class="hidden md:grid grid-cols-5 px-6 py-3 bg-surface-container-low border-b border-surface-container-highest">
+        <span class="font-label-md text-label-md text-on-surface-variant col-span-2">TITRE</span>
+        <span class="font-label-md text-label-md text-on-surface-variant text-right">QTÉ / PRIX MKT</span>
+        <span class="font-label-md text-label-md text-on-surface-variant text-right">VALEUR</span>
+        <span class="font-label-md text-label-md text-on-surface-variant text-right">P&L</span>
+      </div>
+
+      <!-- Positions -->
+      <div id="positionsList">
+        <!-- Sonatel -->
+        <div class="flex md:grid md:grid-cols-5 items-center px-6 py-4 border-b border-surface-container-highest/50 hover:bg-surface-container-low transition-colors cursor-pointer gap-4">
+          <div class="flex items-center gap-3 col-span-2">
+            <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center flex-shrink-0">
+              <svg viewBox="0 0 40 40" fill="none" class="w-7 h-7">
+                <rect width="40" height="40" rx="8" fill="#ff8200"/>
+                <path d="M14 20 Q20 12 26 20 Q20 28 14 20Z" fill="white"/>
+                <circle cx="20" cy="20" r="3" fill="#954a00"/>
+              </svg>
+            </div>
+            <div>
+              <p class="font-title-md text-title-md text-on-background leading-none">Sonatel</p>
+              <p class="font-label-md text-label-md text-on-surface-variant mt-1">SNTS</p>
+            </div>
+          </div>
+          <div class="text-right hidden md:block">
+            <p class="font-label-md text-label-md text-on-background">40 actions</p>
+            <p class="font-label-md text-label-md text-on-surface-variant mt-1">16 450 FCFA</p>
+          </div>
+          <div class="flex-1 md:text-right">
+            <p class="font-title-md text-title-md text-on-background">658 000 FCFA</p>
+            <p class="font-label-md text-label-md text-on-surface-variant md:hidden">40 actions</p>
+          </div>
+          <div class="text-right">
+            <p class="font-label-md text-label-md text-on-secondary-container">+58 000</p>
+            <p class="font-label-md text-label-md text-on-secondary-container">+9.66%</p>
+          </div>
+        </div>
+
+        <!-- BOA Bénin -->
+        <div class="flex md:grid md:grid-cols-5 items-center px-6 py-4 border-b border-surface-container-highest/50 hover:bg-surface-container-low transition-colors cursor-pointer gap-4">
+          <div class="flex items-center gap-3 col-span-2">
+            <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <span class="font-label-md text-label-md text-blue-700">BOA</span>
+            </div>
+            <div>
+              <p class="font-title-md text-title-md text-on-background leading-none">BOA Bénin</p>
+              <p class="font-label-md text-label-md text-on-surface-variant mt-1">BOAB</p>
+            </div>
+          </div>
+          <div class="text-right hidden md:block">
+            <p class="font-label-md text-label-md text-on-background">60 actions</p>
+            <p class="font-label-md text-label-md text-on-surface-variant mt-1">5 900 FCFA</p>
+          </div>
+          <div class="flex-1 md:text-right">
+            <p class="font-title-md text-title-md text-on-background">354 000 FCFA</p>
+            <p class="font-label-md text-label-md text-on-surface-variant md:hidden">60 actions</p>
+          </div>
+          <div class="text-right">
+            <p class="font-label-md text-label-md text-error">-21 000</p>
+            <p class="font-label-md text-label-md text-error">-5.60%</p>
+          </div>
+        </div>
+
+        <!-- Orange CI -->
+        <div class="flex md:grid md:grid-cols-5 items-center px-6 py-4 border-b border-surface-container-highest/50 hover:bg-surface-container-low transition-colors cursor-pointer gap-4">
+          <div class="flex items-center gap-3 col-span-2">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: #ff6600;">
+              <span class="font-label-md font-bold text-white" style="font-size:10px;">ORAC</span>
+            </div>
+            <div>
+              <p class="font-title-md text-title-md text-on-background leading-none">Orange CI</p>
+              <p class="font-label-md text-label-md text-on-surface-variant mt-1">ORAC</p>
+            </div>
+          </div>
+          <div class="text-right hidden md:block">
+            <p class="font-label-md text-label-md text-on-background">50 actions</p>
+            <p class="font-label-md text-label-md text-on-surface-variant mt-1">8 600 FCFA</p>
+          </div>
+          <div class="flex-1 md:text-right">
+            <p class="font-title-md text-title-md text-on-background">430 000 FCFA</p>
+            <p class="font-label-md text-label-md text-on-surface-variant md:hidden">50 actions</p>
+          </div>
+          <div class="text-right">
+            <p class="font-label-md text-label-md text-on-secondary-container">+80 000</p>
+            <p class="font-label-md text-label-md text-on-secondary-container">+22.86%</p>
+          </div>
+        </div>
+
+        <!-- SGBC -->
+        <div class="flex md:grid md:grid-cols-5 items-center px-6 py-4 border-b border-surface-container-highest/50 hover:bg-surface-container-low transition-colors cursor-pointer gap-4">
+          <div class="flex items-center gap-3 col-span-2">
+            <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+              <span class="font-label-md text-label-md text-red-700" style="font-size:10px;">SGBC</span>
+            </div>
+            <div>
+              <p class="font-title-md text-title-md text-on-background leading-none">SGBC</p>
+              <p class="font-label-md text-label-md text-on-surface-variant mt-1">SGBC</p>
+            </div>
+          </div>
+          <div class="text-right hidden md:block">
+            <p class="font-label-md text-label-md text-on-background">8 actions</p>
+            <p class="font-label-md text-label-md text-on-surface-variant mt-1">12 100 FCFA</p>
+          </div>
+          <div class="flex-1 md:text-right">
+            <p class="font-title-md text-title-md text-on-background">96 800 FCFA</p>
+            <p class="font-label-md text-label-md text-on-surface-variant md:hidden">8 actions</p>
+          </div>
+          <div class="text-right">
+            <p class="font-label-md text-label-md text-error">-3 200</p>
+            <p class="font-label-md text-label-md text-error">-3.20%</p>
+          </div>
+        </div>
+
+        <!-- SEIB -->
+        <div class="flex md:grid md:grid-cols-5 items-center px-6 py-4 hover:bg-surface-container-low transition-colors cursor-pointer gap-4">
+          <div class="flex items-center gap-3 col-span-2">
+            <div class="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
+              <span class="font-label-md text-label-md text-green-700">SEIB</span>
+            </div>
+            <div>
+              <p class="font-title-md text-title-md text-on-background leading-none">SEIB</p>
+              <p class="font-label-md text-label-md text-on-surface-variant mt-1">SEIB</p>
+            </div>
+          </div>
+          <div class="text-right hidden md:block">
+            <p class="font-label-md text-label-md text-on-background">38 actions</p>
+            <p class="font-label-md text-label-md text-on-surface-variant mt-1">2 450 FCFA</p>
+          </div>
+          <div class="flex-1 md:text-right">
+            <p class="font-title-md text-title-md text-on-background">93 100 FCFA</p>
+            <p class="font-label-md text-label-md text-on-surface-variant md:hidden">38 actions</p>
+          </div>
+          <div class="text-right">
+            <p class="font-label-md text-label-md text-on-secondary-container">+15 200</p>
+            <p class="font-label-md text-label-md text-on-secondary-container">+19.49%</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="p-4 flex justify-center border-t border-surface-container-highest">
+        <button class="font-label-md text-label-md text-secondary border-b border-secondary">Voir toutes mes positions (12)</button>
+      </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="bg-white rounded-xl border border-surface-container-highest overflow-hidden">
+      <div class="p-6 border-b border-surface-container-highest flex items-center justify-between">
+        <h2 class="font-title-md text-title-md text-on-background">Historique des Ordres</h2>
+        <button class="font-label-md text-label-md text-secondary border-b border-secondary">Tout voir</button>
+      </div>
+      <div class="divide-y divide-surface-container-highest/50">
+        <div class="flex items-center gap-4 px-6 py-4">
+          <div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-secondary" style="font-size:18px; font-variation-settings:'FILL' 1;">shopping_cart</span>
+          </div>
+          <div class="flex-1">
+            <p class="font-title-md text-title-md text-on-background leading-none">Achat SNTS</p>
+            <p class="font-label-md text-label-md text-on-surface-variant mt-1">10 actions • 16 200 FCFA/u</p>
+          </div>
+          <div class="text-right">
+            <p class="font-label-md text-label-md text-on-background">-162 000 FCFA</p>
+            <p class="font-label-md text-label-md text-on-surface-variant">14 juil. 2024</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 px-6 py-4">
+          <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-error" style="font-size:18px; font-variation-settings:'FILL' 1;">sell</span>
+          </div>
+          <div class="flex-1">
+            <p class="font-title-md text-title-md text-on-background leading-none">Vente BOAB</p>
+            <p class="font-label-md text-label-md text-on-surface-variant mt-1">5 actions • 6 100 FCFA/u</p>
+          </div>
+          <div class="text-right">
+            <p class="font-label-md text-label-md text-on-secondary-container">+30 500 FCFA</p>
+            <p class="font-label-md text-label-md text-on-surface-variant">10 juil. 2024</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 px-6 py-4">
+          <div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-secondary" style="font-size:18px; font-variation-settings:'FILL' 1;">shopping_cart</span>
+          </div>
+          <div class="flex-1">
+            <p class="font-title-md text-title-md text-on-background leading-none">Achat ORAC</p>
+            <p class="font-label-md text-label-md text-on-surface-variant mt-1">20 actions • 8 200 FCFA/u</p>
+          </div>
+          <div class="text-right">
+            <p class="font-label-md text-label-md text-on-background">-164 000 FCFA</p>
+            <p class="font-label-md text-label-md text-on-surface-variant">5 juil. 2024</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="fixed bottom-0 w-full flex justify-around items-center h-16 px-4 bg-surface border-t border-surface-container-highest z-50 shadow-lg">
+    <button onclick="window.location.href='index.html'" class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary active:scale-90 transition-transform duration-200">
+      <span class="material-symbols-outlined">home</span>
+      <span class="font-label-md text-label-md">Accueil</span>
+    </button>
+    <button onclick="window.location.href='market.html'" class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary active:scale-90 transition-transform duration-200">
+      <span class="material-symbols-outlined">show_chart</span>
+      <span class="font-label-md text-label-md">Marché</span>
+    </button>
+    <button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 active:scale-90 transition-transform duration-200">
+      <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">account_balance_wallet</span>
+      <span class="font-label-md text-label-md">Portefeuille</span>
+    </button>
+    <button onclick="window.location.href='profile.html'" class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary active:scale-90 transition-transform duration-200">
+      <span class="material-symbols-outlined">person</span>
+      <span class="font-label-md text-label-md">Profil</span>
+    </button>
+  </nav>
+
+</body>
+</html>

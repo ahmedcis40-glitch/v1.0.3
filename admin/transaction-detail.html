@@ -1,0 +1,393 @@
+<!-- Validation de Transaction - Éléphant Bourse Admin -->
+<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Détails Transaction #SN-8291 - Éléphant Bourse</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "secondary": "#006d31", "on-primary-fixed-variant": "#723700",
+          "surface-container-high": "#dce9ff", "error": "#ba1a1a",
+          "surface-container-lowest": "#ffffff", "surface-bright": "#f8f9ff",
+          "surface-tint": "#954a00", "surface-dim": "#cbdbf5",
+          "on-error-container": "#93000a", "outline-variant": "#dec1af",
+          "surface": "#f8f9ff", "inverse-on-surface": "#eaf1ff",
+          "on-primary-container": "#5f2c00", "primary-fixed-dim": "#ffb785",
+          "inverse-surface": "#213145", "surface-container": "#e5eeff",
+          "on-background": "#0b1c30", "surface-container-highest": "#d3e4fe",
+          "on-tertiary-container": "#003a75", "on-secondary": "#ffffff",
+          "primary": "#954a00", "on-error": "#ffffff", "tertiary": "#005db6",
+          "on-surface": "#0b1c30", "primary-fixed": "#ffdcc6",
+          "on-primary-fixed": "#301400", "secondary-container": "#8bf6a1",
+          "surface-container-low": "#eff4ff", "on-primary": "#ffffff",
+          "error-container": "#ffdad6", "on-surface-variant": "#574235",
+          "surface-variant": "#d3e4fe", "on-secondary-container": "#007234",
+          "tertiary-container": "#6ba5ff", "outline": "#8b7263",
+          "on-tertiary": "#ffffff", "background": "#f8f9ff",
+          "primary-container": "#ff8200", "inverse-primary": "#ffb785",
+          "on-tertiary-fixed": "#001b3d", "on-secondary-fixed-variant": "#005324",
+          "label-sm": ["Inter"], "on-tertiary-fixed-variant": "#00468c"
+        },
+        borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+        fontFamily: {
+          "display-sm": ["Inter"], "body-md": ["Inter"], "headline-md": ["Inter"],
+          "label-sm": ["Inter"], "title-lg": ["Inter"], "label-md": ["Inter"],
+          "title-md": ["Inter"], "body-sm": ["Inter"], "headline-lg": ["Inter"]
+        },
+        fontSize: {
+          "display-sm": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+          "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+          "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+          "label-sm": ["11px", {"lineHeight": "16px", "fontWeight": "500"}],
+          "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+          "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+          "title-md": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+          "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+          "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .transaction-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+  .transaction-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+</style>
+</head>
+<body class="bg-background font-body-md text-on-background min-h-screen">
+
+  <!-- Sidebar -->
+  <aside class="w-[280px] h-screen fixed left-0 top-0 bg-surface border-r border-outline-variant flex flex-col py-6 z-50">
+    <div class="px-6 mb-8">
+      <h1 class="font-display-sm text-[20px] font-bold text-primary">Éléphant Bourse</h1>
+      <p class="font-label-md text-label-md text-on-surface-variant">Admin Portal</p>
+    </div>
+    <nav class="flex-grow space-y-1 px-2">
+      <a href="index.html" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-primary transition-colors font-title-md rounded-lg">
+        <span class="material-symbols-outlined">dashboard</span>Dashboard
+      </a>
+      <a href="transactions.html" class="flex items-center gap-4 px-4 py-3 border-l-4 border-primary bg-primary-fixed/10 text-primary font-title-md rounded-r-lg">
+        <span class="material-symbols-outlined">swap_horiz</span>Transactions
+      </a>
+      <a href="users.html" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-primary transition-colors font-title-md rounded-lg">
+        <span class="material-symbols-outlined">group</span>User Management
+      </a>
+      <a href="market.html" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-primary transition-colors font-title-md rounded-lg">
+        <span class="material-symbols-outlined">monitoring</span>Market Monitoring
+      </a>
+      <a href="settings.html" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-primary transition-colors font-title-md rounded-lg">
+        <span class="material-symbols-outlined">settings</span>Settings
+      </a>
+    </nav>
+    <div class="pt-6 border-t border-outline-variant px-2">
+      <a href="#" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-primary transition-colors font-title-md rounded-lg">
+        <span class="material-symbols-outlined">help</span>Support
+      </a>
+      <a href="../login.html" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-error hover:bg-error-container/20 transition-colors font-title-md rounded-lg">
+        <span class="material-symbols-outlined">logout</span>Logout
+      </a>
+    </div>
+  </aside>
+
+  <!-- Top Bar -->
+  <header class="h-16 fixed top-0 right-0 left-[280px] z-40 bg-surface border-b border-outline-variant flex justify-between items-center px-6">
+    <div class="flex items-center bg-surface-container-low rounded-full px-4 py-1.5 focus-within:ring-2 focus-within:ring-primary">
+      <span class="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+      <input class="bg-transparent border-none focus:ring-0 focus:outline-none text-body-md w-64" placeholder="Rechercher une transaction..." type="text"/>
+    </div>
+    <div class="flex items-center gap-3 ml-4">
+      <button class="hover:bg-surface-container-low rounded-full p-2 transition-colors relative">
+        <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full"></span>
+      </button>
+      <button class="hover:bg-surface-container-low rounded-full p-2 transition-colors">
+        <span class="material-symbols-outlined text-on-surface-variant">help_outline</span>
+      </button>
+      <div class="flex items-center gap-3 ml-2 border-l pl-4 border-outline-variant">
+        <div class="text-right">
+          <p class="font-title-md text-on-surface leading-none">Admin Alpha</p>
+          <p class="font-label-sm text-on-surface-variant">Superviseur</p>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm border border-outline-variant">AA</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="ml-[280px] pt-16 p-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6 mt-2">
+      <div class="flex items-center gap-4">
+        <a href="transactions.html" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors">
+          <span class="material-symbols-outlined text-on-surface-variant">arrow_back</span>
+        </a>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Détails de la Transaction — #SN-8291</h2>
+      </div>
+      <div class="flex gap-2">
+        <span class="bg-surface-container-highest text-on-surface-variant px-3 py-1 rounded-full text-label-md flex items-center gap-1">
+          <span class="material-symbols-outlined" style="font-size:16px;">schedule</span>En attente
+        </span>
+        <span class="bg-primary-fixed text-on-primary-fixed-variant px-3 py-1 rounded-full text-label-md flex items-center gap-1">
+          <span class="material-symbols-outlined" style="font-size:16px;">category</span>Actions
+        </span>
+      </div>
+    </div>
+
+    <!-- Layout -->
+    <div class="grid grid-cols-12 gap-4">
+      <!-- Left: Client Profile -->
+      <div class="col-span-12 lg:col-span-4 space-y-4">
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 transaction-card">
+          <div class="flex flex-col items-center text-center pb-6 border-b border-outline-variant mb-6">
+            <div class="relative mb-4">
+              <div class="w-24 h-24 rounded-full bg-primary/10 text-primary flex items-center justify-center text-3xl font-bold border-4 border-surface-container">MK</div>
+              <span class="absolute bottom-1 right-1 bg-secondary text-white rounded-full p-1 border-2 border-white">
+                <span class="material-symbols-outlined" style="font-size:14px; font-variation-settings:'FILL' 1;">verified</span>
+              </span>
+            </div>
+            <h3 class="font-headline-md text-headline-md text-on-surface">Mamadou Konaté</h3>
+            <p class="text-on-surface-variant font-body-md mb-3">mamadou.konate@email.ci</p>
+            <div class="flex items-center gap-2 bg-secondary-container/30 text-on-secondary-container px-3 py-0.5 rounded-full text-label-md font-bold">
+              KYC: VERIFIED
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-on-surface-variant font-label-md">ID CLIENT</span>
+              <span class="font-title-md text-on-surface">EB-CI-09221</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-on-surface-variant font-label-md">TYPE DE COMPTE</span>
+              <span class="font-title-md text-on-surface">Premium Individuel</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-on-surface-variant font-label-md">MEMBRE DEPUIS</span>
+              <span class="font-title-md text-on-surface">Jan. 2023</span>
+            </div>
+            <div class="bg-surface-container-low p-4 rounded-lg mt-4">
+              <span class="text-on-surface-variant font-label-md block mb-1">SOLDE DISPONIBLE</span>
+              <p class="text-display-sm font-display-sm text-primary">1 450 200 <span class="text-headline-md font-normal">FCFA</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent History -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6">
+          <h4 class="font-title-md text-title-md mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary">history</span>Historique Récent
+          </h4>
+          <div class="space-y-4">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary flex-shrink-0">
+                <span class="material-symbols-outlined" style="font-size:18px;">add</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-label-md text-on-surface">Dépôt via Orange Money</p>
+                <p class="font-label-sm text-on-surface-variant">Hier, 14:20</p>
+              </div>
+              <div class="font-title-md text-secondary flex-shrink-0">+250k</div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-error-container/20 flex items-center justify-center text-error flex-shrink-0">
+                <span class="material-symbols-outlined" style="font-size:18px;">remove</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-label-md text-on-surface">Achat SNTS</p>
+                <p class="font-label-sm text-on-surface-variant">05 Oct, 09:15</p>
+              </div>
+              <div class="font-title-md text-error flex-shrink-0">-194k</div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary flex-shrink-0">
+                <span class="material-symbols-outlined" style="font-size:18px;">add</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-label-md text-on-surface">Dividendes SNTS</p>
+                <p class="font-label-sm text-on-surface-variant">01 Oct, 11:00</p>
+              </div>
+              <div class="font-title-md text-secondary flex-shrink-0">+10.2k</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Order Details -->
+      <div class="col-span-12 lg:col-span-8 space-y-4">
+        <!-- Order Summary -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden transaction-card">
+          <div class="bg-surface-container-low px-6 py-4 flex justify-between items-center border-b border-outline-variant">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-outline-variant font-bold text-primary">SN</div>
+              <div>
+                <h4 class="font-title-lg text-title-lg text-on-surface">Sonatel CI</h4>
+                <p class="text-label-md text-on-surface-variant">Ticker: <span class="font-bold">SNTS</span> · BRVM</p>
+              </div>
+            </div>
+            <span class="bg-primary text-white px-4 py-1 rounded-full text-label-md font-bold">ORDRE D'ACHAT</span>
+          </div>
+          <div class="p-6 grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div>
+              <span class="text-on-surface-variant font-label-md block mb-1 uppercase tracking-wider">Quantité</span>
+              <p class="font-headline-md text-headline-md text-on-surface">12 Actions</p>
+            </div>
+            <div>
+              <span class="text-on-surface-variant font-label-md block mb-1 uppercase tracking-wider">Prix Unitaire</span>
+              <p class="font-headline-md text-headline-md text-on-surface">16 200 <span class="text-body-md font-normal">FCFA</span></p>
+            </div>
+            <div>
+              <span class="text-on-surface-variant font-label-md block mb-1 uppercase tracking-wider">Marché</span>
+              <p class="font-headline-md text-headline-md text-on-surface">BRVM</p>
+            </div>
+            <div class="bg-primary-container/10 p-3 rounded-lg">
+              <span class="text-primary font-label-md block mb-1 uppercase tracking-wider">Total Ordre</span>
+              <p class="font-display-sm text-display-sm text-primary">194 400 <span class="font-headline-md">FCFA</span></p>
+            </div>
+          </div>
+          <div class="px-6 pb-4 border-t border-outline-variant pt-4 grid grid-cols-3 gap-4">
+            <div>
+              <span class="text-on-surface-variant font-label-md block mb-1">TYPE D'ORDRE</span>
+              <p class="font-title-md text-on-surface">Cours Limité</p>
+            </div>
+            <div>
+              <span class="text-on-surface-variant font-label-md block mb-1">FRAIS (0.5%)</span>
+              <p class="font-title-md text-on-surface">972 FCFA</p>
+            </div>
+            <div>
+              <span class="text-on-surface-variant font-label-md block mb-1">DATE SOUMISSION</span>
+              <p class="font-title-md text-on-surface">14 Oct. 10:45</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Proof of Payment -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 transaction-card">
+          <h4 class="font-title-lg text-title-lg mb-6 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">description</span>Preuve de paiement
+          </h4>
+          <div class="grid md:grid-cols-2 gap-6">
+            <!-- File download -->
+            <div class="bg-surface-container-low rounded-xl p-6 border-2 border-dashed border-outline-variant flex flex-col items-center justify-center aspect-[4/3] group cursor-pointer hover:border-primary transition-all">
+              <div class="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-primary" style="font-size:32px;">picture_as_pdf</span>
+              </div>
+              <p class="font-title-md text-on-surface">Reçu_SN8291.pdf</p>
+              <p class="text-label-sm text-on-surface-variant">2.4 MB • Uploadé à 10:45</p>
+              <button class="mt-3 px-4 py-1.5 bg-white border border-outline-variant rounded-full text-label-md text-primary hover:border-primary transition-colors flex items-center gap-1">
+                <span class="material-symbols-outlined" style="font-size:16px;">download</span>Télécharger
+              </button>
+            </div>
+
+            <!-- Receipt preview -->
+            <div class="bg-white rounded-lg border border-outline-variant p-5 shadow-sm flex flex-col relative overflow-hidden">
+              <div class="absolute top-0 left-0 w-full h-1 bg-secondary rounded-t-lg"></div>
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <p class="font-bold text-secondary text-title-md">CONFIRMATION DE TRANSFERT</p>
+                  <p class="text-label-sm text-on-surface-variant">Orange Money Côte d'Ivoire</p>
+                </div>
+                <div class="w-10 h-10 rounded-lg bg-orange-500 flex items-center justify-center text-white font-bold text-xs">OM</div>
+              </div>
+              <div class="space-y-2.5 flex-grow">
+                <div class="flex justify-between text-body-sm">
+                  <span class="text-on-surface-variant">Référence:</span>
+                  <span class="font-mono font-bold text-xs">OM-X-992-KLA-29</span>
+                </div>
+                <div class="flex justify-between text-body-sm">
+                  <span class="text-on-surface-variant">Expéditeur:</span>
+                  <span>M. Mamadou Konaté</span>
+                </div>
+                <div class="flex justify-between text-body-sm">
+                  <span class="text-on-surface-variant">Destinataire:</span>
+                  <span>Éléphant Bourse SARL</span>
+                </div>
+                <div class="flex justify-between text-body-sm">
+                  <span class="text-on-surface-variant">Date:</span>
+                  <span>14/10/2024 10:43</span>
+                </div>
+                <div class="flex justify-between text-body-sm border-t border-dashed border-outline-variant pt-2.5">
+                  <span class="text-on-surface-variant font-bold">MONTANT:</span>
+                  <span class="font-bold text-headline-md">194 400 FCFA</span>
+                </div>
+              </div>
+              <div class="mt-4 flex justify-center">
+                <div class="p-2 border border-outline-variant rounded">
+                  <span class="material-symbols-outlined text-on-surface" style="font-size:48px;">qr_code_2</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reject reason (hidden) -->
+        <div id="rejectForm" class="hidden bg-error-container/20 border border-error/30 rounded-xl p-5">
+          <h4 class="font-title-md text-error mb-3 flex items-center gap-2">
+            <span class="material-symbols-outlined">block</span>Motif de rejet
+          </h4>
+          <select class="w-full border border-outline-variant rounded-lg p-3 bg-white text-body-md focus:outline-none focus:border-error mb-3">
+            <option>Preuve de paiement invalide</option>
+            <option>Montant insuffisant</option>
+            <option>KYC incomplet</option>
+            <option>Ordre dupliqué</option>
+            <option>Autre motif</option>
+          </select>
+          <textarea rows="3" class="w-full border border-outline-variant rounded-lg p-3 bg-white text-body-md focus:outline-none focus:border-error resize-none" placeholder="Commentaire additionnel (optionnel)..."></textarea>
+          <div class="flex gap-3 mt-3">
+            <button onclick="document.getElementById('rejectForm').classList.add('hidden')" class="px-5 py-2 border border-outline-variant rounded-lg font-title-md text-on-surface hover:bg-surface-container-low">Annuler</button>
+            <button onclick="finalReject()" class="px-5 py-2 bg-error text-white rounded-lg font-title-md hover:opacity-90">Confirmer le rejet</button>
+          </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-on-surface-variant">info</span>
+            <p class="text-body-md text-on-surface-variant max-w-md">En validant cette transaction, vous confirmez la réception des fonds et autorisez l'exécution de l'ordre de bourse.</p>
+          </div>
+          <div class="flex gap-3 w-full md:w-auto">
+            <button onclick="showRejectForm()" class="flex-1 md:flex-none px-6 py-3 bg-white border border-error text-error font-title-md rounded-lg hover:bg-error-container/10 transition-colors flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined">block</span>Rejeter avec motif
+            </button>
+            <button onclick="validate()" class="flex-1 md:flex-none px-8 py-3 bg-secondary text-white font-title-md rounded-lg hover:shadow-lg hover:shadow-secondary/20 transition-all flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined">check_circle</span>Valider le paiement
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="hidden fixed bottom-6 right-6 z-50 px-5 py-3 rounded-lg shadow-xl flex items-center gap-3 font-title-md text-white"></div>
+
+<script>
+  function showToast(msg, type='success') {
+    const t = document.getElementById('toast');
+    t.className = `fixed bottom-6 right-6 z-50 px-5 py-3 rounded-lg shadow-xl flex items-center gap-3 font-title-md text-white ${type==='success'?'bg-secondary':'bg-error'}`;
+    t.innerHTML = `<span class="material-symbols-outlined">${type==='success'?'check_circle':'cancel'}</span>${msg}`;
+    t.classList.remove('hidden');
+    setTimeout(() => { t.classList.add('hidden'); if(type==='success') setTimeout(()=>window.location.href='index.html', 500); }, 2500);
+  }
+
+  function validate() { showToast('Transaction #SN-8291 validée avec succès ✓'); }
+  function showRejectForm() { document.getElementById('rejectForm').classList.remove('hidden'); document.getElementById('rejectForm').scrollIntoView({behavior:'smooth'}); }
+  function finalReject() { showToast('Transaction #SN-8291 rejetée', 'error'); setTimeout(()=>window.location.href='index.html', 2000); }
+
+  document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('mousedown', () => btn.style.transform = 'scale(0.98)');
+    btn.addEventListener('mouseup', () => btn.style.transform = '');
+    btn.addEventListener('mouseleave', () => btn.style.transform = '');
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!-- Profil - Éléphant Bourse -->
+<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Éléphant Bourse - Mon Profil</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "on-background": "#1a1c1e", "background": "#f9f9fc", "surface-container-highest": "#e2e2e5",
+          "error": "#ba1a1a", "secondary-fixed-dim": "#61dd98", "secondary": "#006d40",
+          "secondary-fixed": "#7efab3", "on-surface-variant": "#574235", "on-error": "#ffffff",
+          "on-primary-container": "#5f2c00", "tertiary-container": "#a3a4a4",
+          "surface-container": "#eeeef0", "outline": "#8b7263", "error-container": "#ffdad6",
+          "surface-tint": "#954a00", "primary-container": "#ff8200", "surface": "#f9f9fc",
+          "on-secondary-container": "#007244", "on-tertiary": "#ffffff",
+          "primary-fixed": "#ffdcc6", "primary-fixed-dim": "#ffb785", "on-secondary": "#ffffff",
+          "surface-container-lowest": "#ffffff", "on-primary-fixed-variant": "#723700",
+          "tertiary-fixed": "#e2e2e2", "surface-bright": "#f9f9fc", "on-error-container": "#93000a",
+          "surface-container-high": "#e8e8ea", "surface-variant": "#e2e2e5",
+          "on-tertiary-container": "#383a3b", "inverse-surface": "#2f3133",
+          "inverse-primary": "#ffb785", "tertiary": "#5d5f5f", "primary": "#954a00",
+          "on-primary-fixed": "#301400", "secondary-container": "#7bf7b0",
+          "on-primary": "#ffffff", "on-surface": "#1a1c1e", "outline-variant": "#dec1af",
+          "inverse-on-surface": "#f0f0f3", "surface-container-low": "#f3f3f6"
+        },
+        borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+        fontFamily: {
+          "title-md": ["Inter"], "label-md": ["JetBrains Mono"], "body-lg": ["Inter"],
+          "body-sm": ["Inter"], "display-lg": ["Inter"], "headline-lg": ["Inter"],
+          "headline-lg-mobile": ["Inter"]
+        },
+        fontSize: {
+          "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+          "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+          "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+          "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+          "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+          "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+          "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  body { background-color: #f9f9fc; -webkit-font-smoothing: antialiased; }
+</style>
+</head>
+<body class="pb-24 min-h-screen text-on-surface">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-surface border-b border-surface-container-highest flex items-center justify-between px-4 md:px-16 w-full h-16">
+    <h1 class="font-title-md text-title-md text-on-background">Mon Profil</h1>
+    <button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low transition-colors p-2 rounded-full">settings</button>
+  </header>
+
+  <main class="max-w-[600px] mx-auto px-4 py-8 space-y-6">
+
+    <!-- Profile Card -->
+    <div class="bg-white rounded-xl border border-surface-container-highest p-6 flex flex-col items-center text-center">
+      <div class="w-24 h-24 rounded-full bg-secondary-container flex items-center justify-center mb-4 text-4xl font-bold text-on-secondary-container">
+        KD
+      </div>
+      <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background">Konan Diabaté</h2>
+      <p class="font-label-md text-label-md text-on-surface-variant mt-1">k.diabate@email.ci</p>
+      <div class="flex items-center gap-2 mt-3 px-4 py-2 bg-secondary-container rounded-full">
+        <span class="material-symbols-outlined text-on-secondary-container" style="font-size:16px; font-variation-settings:'FILL' 1;">verified</span>
+        <span class="font-label-md text-label-md text-on-secondary-container">Compte vérifié • KYC validé</span>
+      </div>
+      <div class="grid grid-cols-3 gap-4 w-full mt-6 pt-6 border-t border-surface-container-highest">
+        <div>
+          <p class="font-display-lg text-[24px] leading-tight text-primary">12</p>
+          <p class="font-label-md text-label-md text-on-surface-variant mt-1">Titres</p>
+        </div>
+        <div class="border-x border-surface-container-highest">
+          <p class="font-display-lg text-[24px] leading-tight text-secondary">+20.8%</p>
+          <p class="font-label-md text-label-md text-on-surface-variant mt-1">Rendement</p>
+        </div>
+        <div>
+          <p class="font-display-lg text-[24px] leading-tight text-on-background">18</p>
+          <p class="font-label-md text-label-md text-on-surface-variant mt-1">Ordres</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Actions -->
+    <div class="bg-white rounded-xl border border-surface-container-highest overflow-hidden">
+      <div class="p-4 border-b border-surface-container-highest">
+        <p class="font-label-md text-label-md text-on-surface-variant">MON COMPTE</p>
+      </div>
+      <div class="divide-y divide-surface-container-highest/50">
+        <button class="w-full flex items-center justify-between px-6 py-4 hover:bg-surface-container-low transition-colors">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-primary">person</span>
+            <span class="font-body-lg text-on-background">Informations personnelles</span>
+          </div>
+          <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+        </button>
+        <button class="w-full flex items-center justify-between px-6 py-4 hover:bg-surface-container-low transition-colors">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-primary">account_balance</span>
+            <span class="font-body-lg text-on-background">Compte bancaire lié</span>
+          </div>
+          <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+        </button>
+        <button class="w-full flex items-center justify-between px-6 py-4 hover:bg-surface-container-low transition-colors">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-primary">payments</span>
+            <span class="font-body-lg text-on-background">Moyens de paiement</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 bg-secondary-container text-on-secondary-container rounded-full font-label-md text-label-md">MTN, Wave</span>
+            <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+          </div>
+        </button>
+        <button class="w-full flex items-center justify-between px-6 py-4 hover:bg-surface-container-low transition-colors">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-primary">shield</span>
+            <span class="font-body-lg text-on-background">Sécurité & Confidentialité</span>
+          </div>
+          <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="bg-white rounded-xl border border-surface-container-highest overflow-hidden">
+      <div class="p-4 border-b border-surface-container-highest">
+        <p class="font-label-md text-label-md text-on-surface-variant">NOTIFICATIONS</p>
+      </div>
+      <div class="divide-y divide-surface-container-highest/50">
+        <div class="flex items-center justify-between px-6 py-4">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+            <div>
+              <p class="font-body-lg text-on-background">Alertes de cours</p>
+              <p class="font-body-sm text-on-surface-variant">Variations importantes</p>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" class="sr-only peer" checked/>
+            <div class="w-11 h-6 bg-surface-container-highest peer-checked:bg-secondary rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+          </label>
+        </div>
+        <div class="flex items-center justify-between px-6 py-4">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-on-surface-variant">mail</span>
+            <div>
+              <p class="font-body-lg text-on-background">Rapport hebdomadaire</p>
+              <p class="font-body-sm text-on-surface-variant">Récapitulatif par email</p>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" class="sr-only peer" checked/>
+            <div class="w-11 h-6 bg-surface-container-highest peer-checked:bg-secondary rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+          </label>
+        </div>
+        <div class="flex items-center justify-between px-6 py-4">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-on-surface-variant">payments</span>
+            <div>
+              <p class="font-body-lg text-on-background">Dividendes versés</p>
+              <p class="font-body-sm text-on-surface-variant">Notifications de paiement</p>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" class="sr-only peer"/>
+            <div class="w-11 h-6 bg-surface-container-highest peer-checked:bg-secondary rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Support -->
+    <div class="bg-white rounded-xl border border-surface-container-highest overflow-hidden">
+      <div class="p-4 border-b border-surface-container-highest">
+        <p class="font-label-md text-label-md text-on-surface-variant">AIDE & SUPPORT</p>
+      </div>
+      <div class="divide-y divide-surface-container-highest/50">
+        <button class="w-full flex items-center justify-between px-6 py-4 hover:bg-surface-container-low transition-colors">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-on-surface-variant">help</span>
+            <span class="font-body-lg text-on-background">Centre d'aide</span>
+          </div>
+          <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+        </button>
+        <button class="w-full flex items-center justify-between px-6 py-4 hover:bg-surface-container-low transition-colors">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-on-surface-variant">chat</span>
+            <span class="font-body-lg text-on-background">Contacter le support</span>
+          </div>
+          <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+        </button>
+        <button class="w-full flex items-center justify-between px-6 py-4 hover:bg-surface-container-low transition-colors">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-on-surface-variant">info</span>
+            <span class="font-body-lg text-on-background">À propos d'Éléphant Bourse</span>
+          </div>
+          <span class="font-label-md text-label-md text-on-surface-variant">v1.0.3</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Sign Out -->
+    <button onclick="window.location.href='login.html'" class="w-full flex items-center justify-center gap-2 py-4 bg-error-container text-error rounded-xl font-title-md hover:opacity-90 active:scale-95 transition-all">
+      <span class="material-symbols-outlined">logout</span>
+      Se déconnecter
+    </button>
+
+    <p class="text-center font-label-md text-label-md text-on-surface-variant opacity-50">
+      © 2024 Éléphant Bourse • Côte d'Ivoire<br/>
+      Agréé par le CREPMF • Tous droits réservés
+    </p>
+
+  </main>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="fixed bottom-0 w-full flex justify-around items-center h-16 px-4 bg-surface border-t border-surface-container-highest z-50 shadow-lg">
+    <button onclick="window.location.href='index.html'" class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary active:scale-90 transition-transform duration-200">
+      <span class="material-symbols-outlined">home</span>
+      <span class="font-label-md text-label-md">Accueil</span>
+    </button>
+    <button onclick="window.location.href='market.html'" class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary active:scale-90 transition-transform duration-200">
+      <span class="material-symbols-outlined">show_chart</span>
+      <span class="font-label-md text-label-md">Marché</span>
+    </button>
+    <button onclick="window.location.href='portfolio.html'" class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary active:scale-90 transition-transform duration-200">
+      <span class="material-symbols-outlined">account_balance_wallet</span>
+      <span class="font-label-md text-label-md">Portefeuille</span>
+    </button>
+    <button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 active:scale-90 transition-transform duration-200">
+      <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">person</span>
+      <span class="font-label-md text-label-md">Profil</span>
+    </button>
+  </nav>
+
+</body>
+</html>

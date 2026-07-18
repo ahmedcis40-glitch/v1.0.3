@@ -1,0 +1,254 @@
+<!-- Gestion des Utilisateurs - Éléphant Bourse Admin -->
+<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User Management - Éléphant Bourse Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "secondary": "#006d31", "error": "#ba1a1a", "surface-container-lowest": "#ffffff",
+          "surface-bright": "#f8f9ff", "surface-tint": "#954a00", "on-error-container": "#93000a",
+          "outline-variant": "#dec1af", "surface": "#f8f9ff", "surface-container": "#e5eeff",
+          "on-background": "#0b1c30", "surface-container-highest": "#d3e4fe", "on-secondary": "#ffffff",
+          "primary": "#954a00", "on-error": "#ffffff", "tertiary": "#005db6", "on-surface": "#0b1c30",
+          "primary-fixed": "#ffdcc6", "secondary-container": "#8bf6a1", "surface-container-low": "#eff4ff",
+          "on-primary": "#ffffff", "error-container": "#ffdad6", "on-surface-variant": "#574235",
+          "surface-variant": "#d3e4fe", "on-secondary-container": "#007234",
+          "outline": "#8b7263", "background": "#f8f9ff", "primary-container": "#ff8200",
+          "surface-container-high": "#dce9ff", "on-primary-fixed-variant": "#723700",
+          "inverse-primary": "#ffb785", "on-primary-fixed": "#301400"
+        },
+        borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+        fontFamily: { "display-sm": ["Inter"], "body-md": ["Inter"], "headline-md": ["Inter"], "label-sm": ["Inter"], "title-lg": ["Inter"], "label-md": ["Inter"], "title-md": ["Inter"], "body-sm": ["Inter"], "headline-lg": ["Inter"] },
+        fontSize: {
+          "display-sm": ["30px", {"lineHeight": "38px", "fontWeight": "700"}],
+          "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+          "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+          "label-sm": ["11px", {"lineHeight": "16px", "fontWeight": "500"}],
+          "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+          "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+          "title-md": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+          "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+          "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+</style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen">
+  <!-- Sidebar -->
+  <aside class="w-[280px] h-screen fixed left-0 top-0 bg-surface border-r border-outline-variant flex flex-col py-6 z-50">
+    <div class="px-6 mb-8"><h1 class="font-display-sm text-[20px] font-bold text-primary">Éléphant Bourse</h1><p class="font-label-md text-label-md text-on-surface-variant">Admin Portal</p></div>
+    <nav class="flex-grow space-y-1 px-2">
+      <a href="index.html" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-primary transition-colors font-title-md rounded-lg"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+      <a href="transactions.html" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-primary transition-colors font-title-md rounded-lg"><span class="material-symbols-outlined">swap_horiz</span>Transactions</a>
+      <a href="users.html" class="flex items-center gap-4 px-4 py-3 border-l-4 border-primary bg-primary-fixed/10 text-primary font-title-md rounded-r-lg"><span class="material-symbols-outlined">group</span>User Management</a>
+      <a href="market.html" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-primary transition-colors font-title-md rounded-lg"><span class="material-symbols-outlined">monitoring</span>Market Monitoring</a>
+      <a href="settings.html" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-primary transition-colors font-title-md rounded-lg"><span class="material-symbols-outlined">settings</span>Settings</a>
+    </nav>
+    <div class="pt-6 border-t border-outline-variant px-2">
+      <a href="#" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-primary transition-colors font-title-md rounded-lg"><span class="material-symbols-outlined">help</span>Support</a>
+      <a href="../login.html" class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-error hover:bg-error-container/20 transition-colors font-title-md rounded-lg"><span class="material-symbols-outlined">logout</span>Logout</a>
+    </div>
+  </aside>
+
+  <header class="h-16 fixed top-0 right-0 left-[280px] z-40 bg-surface border-b border-outline-variant flex justify-between items-center px-6">
+    <div class="flex items-center bg-surface-container-low rounded-full px-4 py-1.5 focus-within:ring-2 focus-within:ring-primary">
+      <span class="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+      <input id="searchInput" class="bg-transparent border-none focus:ring-0 focus:outline-none text-body-md w-64" placeholder="Rechercher un utilisateur..." type="text" oninput="filterUsers()"/>
+    </div>
+    <div class="flex items-center gap-3 ml-4">
+      <button class="hover:bg-surface-container-low rounded-full p-2 text-on-surface-variant transition-colors"><span class="material-symbols-outlined">notifications</span></button>
+      <div class="flex items-center gap-3 border-l pl-4 border-outline-variant">
+        <div class="text-right"><p class="font-title-md text-on-surface leading-none">M. Kouassi</p><p class="font-label-sm text-on-surface-variant">Admin Level 4</p></div>
+        <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">MK</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="ml-[280px] pt-16 p-6">
+    <div class="flex items-center justify-between mb-6 mt-2">
+      <div><h2 class="font-headline-lg text-headline-lg">Gestion des Utilisateurs</h2><p class="font-body-md text-on-surface-variant">Gérez les comptes clients, KYC et permissions.</p></div>
+      <button class="bg-primary-container text-white px-4 py-2 rounded font-title-md flex items-center gap-2 hover:opacity-90">
+        <span class="material-symbols-outlined">person_add</span>Inviter un utilisateur
+      </button>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4">
+        <p class="font-label-md text-on-surface-variant">TOTAL CLIENTS</p>
+        <p class="font-display-sm text-display-sm mt-2">8 432</p>
+        <p class="font-label-sm text-secondary mt-1">+127 ce mois</p>
+      </div>
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4">
+        <p class="font-label-md text-on-surface-variant">KYC VALIDÉS</p>
+        <p class="font-display-sm text-display-sm mt-2">7 814</p>
+        <p class="font-label-sm text-secondary mt-1">92.7%</p>
+      </div>
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4">
+        <p class="font-label-md text-on-surface-variant">EN ATTENTE KYC</p>
+        <p class="font-display-sm text-display-sm mt-2 text-error">42</p>
+        <p class="font-label-sm text-error mt-1">5 urgents</p>
+      </div>
+      <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4">
+        <p class="font-label-md text-on-surface-variant">COMPTES SUSPENDUS</p>
+        <p class="font-display-sm text-display-sm mt-2 text-on-surface-variant">12</p>
+        <p class="font-label-sm text-on-surface-variant mt-1">Sous révision</p>
+      </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="flex items-center gap-2 mb-4">
+      <button onclick="setFilter('all')" id="tab-all" class="px-4 py-1.5 bg-primary text-white rounded-full font-label-md transition-colors">Tous</button>
+      <button onclick="setFilter('verified')" id="tab-verified" class="px-4 py-1.5 bg-surface-container-low border border-outline-variant text-on-surface-variant rounded-full font-label-md hover:border-secondary transition-colors">KYC Validé</button>
+      <button onclick="setFilter('pending')" id="tab-pending" class="px-4 py-1.5 bg-surface-container-low border border-outline-variant text-on-surface-variant rounded-full font-label-md hover:border-error transition-colors">En attente</button>
+      <button onclick="setFilter('suspended')" id="tab-suspended" class="px-4 py-1.5 bg-surface-container-low border border-outline-variant text-on-surface-variant rounded-full font-label-md hover:border-on-surface-variant transition-colors">Suspendu</button>
+    </div>
+
+    <!-- Users Table -->
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-surface-container text-on-surface-variant font-label-md uppercase tracking-wider">
+              <th class="px-4 py-3">Client</th>
+              <th class="px-4 py-3">Compte</th>
+              <th class="px-4 py-3">KYC</th>
+              <th class="px-4 py-3 text-right">Portefeuille</th>
+              <th class="px-4 py-3">Inscrit</th>
+              <th class="px-4 py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTable" class="divide-y divide-outline-variant"></tbody>
+        </table>
+      </div>
+      <div class="p-4 bg-surface-container flex justify-between items-center">
+        <span class="font-label-sm text-on-surface-variant">Affichage 8 sur 8 432 utilisateurs</span>
+        <div class="flex gap-1">
+          <button class="p-1 border border-outline-variant rounded bg-white"><span class="material-symbols-outlined" style="font-size:18px;">chevron_left</span></button>
+          <button class="px-3 py-1 bg-primary text-white rounded font-label-md">1</button>
+          <button class="px-3 py-1 hover:bg-white rounded font-label-md">2</button>
+          <button class="px-3 py-1 hover:bg-white rounded font-label-md">3</button>
+          <button class="p-1 border border-outline-variant rounded bg-white"><span class="material-symbols-outlined" style="font-size:18px;">chevron_right</span></button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- User Detail Modal -->
+  <div id="modal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-headline-md text-headline-md" id="modalName">Nom Prénom</h3>
+        <button onclick="document.getElementById('modal').classList.add('hidden')" class="p-2 hover:bg-surface-container-low rounded-full">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+<script>
+  const users = [
+    { initials:'MK', name:'Mamadou Konaté', email:'m.konate@email.ci', id:'EB-09221', type:'Premium', kyc:'verified', portfolio:'1 450 200', date:'Jan. 2023' },
+    { initials:'AD', name:'Amadou Diop', email:'a.diop@email.sn', id:'EB-9021', type:'Standard', kyc:'verified', portfolio:'654 000', date:'Mar. 2023' },
+    { initials:'YK', name:'Yasmine Koné', email:'y.kone@gmail.com', id:'EB-4412', type:'Standard', kyc:'verified', portfolio:'320 500', date:'Avr. 2023' },
+    { initials:'FT', name:'Fatou Traoré', email:'f.traore@orange.ci', id:'EB-3392', type:'Standard', kyc:'pending', portfolio:'125 000', date:'Juin 2023' },
+    { initials:'MT', name:'Moussa Touré', email:'m.toure@yahoo.fr', id:'EB-8871', type:'Standard', kyc:'verified', portfolio:'890 300', date:'Juil. 2023' },
+    { initials:'JM', name:'Jean-Marc Soro', email:'jm.soro@gmail.com', id:'EB-1002', type:'Premium', kyc:'verified', portfolio:'3 200 000', date:'Fév. 2022' },
+    { initials:'AB', name:'Awa Ba', email:'a.ba@email.ml', id:'EB-7710', type:'Standard', kyc:'pending', portfolio:'0', date:'Oct. 2024' },
+    { initials:'KC', name:'Kofi Coulibaly', email:'k.coulibaly@email.ci', id:'EB-2201', type:'Standard', kyc:'suspended', portfolio:'450 000', date:'Mai 2023' },
+  ];
+
+  let currentFilter = 'all';
+  let searchTerm = '';
+
+  function renderUsers() {
+    const tbody = document.getElementById('usersTable');
+    const filtered = users.filter(u => {
+      const matchFilter = currentFilter === 'all' || u.kyc === currentFilter;
+      const matchSearch = u.name.toLowerCase().includes(searchTerm) || u.id.toLowerCase().includes(searchTerm);
+      return matchFilter && matchSearch;
+    });
+    tbody.innerHTML = filtered.map(u => {
+      const kycBadge = u.kyc === 'verified'
+        ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-secondary/10 text-secondary rounded-full text-label-md"><span class="material-symbols-outlined" style="font-size:12px; font-variation-settings:'FILL' 1;">check_circle</span>Vérifié</span>`
+        : u.kyc === 'pending'
+        ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-error-container text-error rounded-full text-label-md"><span class="material-symbols-outlined" style="font-size:12px;">pending</span>En attente</span>`
+        : `<span class="inline-flex items-center gap-1 px-2 py-0.5 bg-surface-container text-on-surface-variant rounded-full text-label-md"><span class="material-symbols-outlined" style="font-size:12px;">block</span>Suspendu</span>`;
+      return `
+        <tr class="hover:bg-surface-container-low transition-colors">
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">${u.initials}</div>
+              <div><div class="font-title-md">${u.name}</div><div class="font-label-sm text-on-surface-variant">${u.email}</div></div>
+            </div>
+          </td>
+          <td class="px-4 py-3">
+            <div class="font-label-sm text-on-surface">${u.id}</div>
+            <div class="font-label-sm text-on-surface-variant">${u.type}</div>
+          </td>
+          <td class="px-4 py-3">${kycBadge}</td>
+          <td class="px-4 py-3 text-right font-title-md">${u.portfolio} FCFA</td>
+          <td class="px-4 py-3 font-label-sm text-on-surface-variant">${u.date}</td>
+          <td class="px-4 py-3">
+            <div class="flex gap-1">
+              <button onclick='openModal(${JSON.stringify(u)})' class="p-1.5 hover:bg-surface-container rounded transition-colors" title="Voir profil">
+                <span class="material-symbols-outlined text-on-surface-variant" style="font-size:18px;">open_in_new</span>
+              </button>
+              ${u.kyc === 'pending' ? `<button class="p-1.5 hover:bg-secondary/10 text-secondary rounded transition-colors" title="Approuver KYC"><span class="material-symbols-outlined" style="font-size:18px;">verified_user</span></button>` : ''}
+              ${u.kyc !== 'suspended' ? `<button class="p-1.5 hover:bg-error/10 text-error rounded transition-colors" title="Suspendre"><span class="material-symbols-outlined" style="font-size:18px;">block</span></button>` : `<button class="p-1.5 hover:bg-secondary/10 text-secondary rounded transition-colors" title="Réactiver"><span class="material-symbols-outlined" style="font-size:18px;">lock_open</span></button>`}
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+    if (!filtered.length) tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-on-surface-variant">Aucun utilisateur trouvé.</td></tr>`;
+  }
+
+  function setFilter(f) {
+    currentFilter = f;
+    ['all','verified','pending','suspended'].forEach(id => {
+      const tab = document.getElementById('tab-'+id);
+      if(id === f) { tab.className = 'px-4 py-1.5 bg-primary text-white rounded-full font-label-md transition-colors'; }
+      else { tab.className = 'px-4 py-1.5 bg-surface-container-low border border-outline-variant text-on-surface-variant rounded-full font-label-md hover:border-primary transition-colors'; }
+    });
+    renderUsers();
+  }
+
+  function filterUsers() { searchTerm = document.getElementById('searchInput').value.toLowerCase(); renderUsers(); }
+
+  function openModal(u) {
+    document.getElementById('modalName').textContent = u.name;
+    document.getElementById('modalContent').innerHTML = `
+      <div class="space-y-3 mb-5">
+        <div class="flex justify-between"><span class="text-on-surface-variant">ID Client</span><span class="font-bold">${u.id}</span></div>
+        <div class="flex justify-between"><span class="text-on-surface-variant">Email</span><span>${u.email}</span></div>
+        <div class="flex justify-between"><span class="text-on-surface-variant">Type de compte</span><span>${u.type}</span></div>
+        <div class="flex justify-between"><span class="text-on-surface-variant">Portefeuille</span><span class="font-bold text-primary">${u.portfolio} FCFA</span></div>
+        <div class="flex justify-between"><span class="text-on-surface-variant">Membre depuis</span><span>${u.date}</span></div>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="document.getElementById('modal').classList.add('hidden')" class="flex-1 py-2 border border-outline-variant rounded-lg font-title-md hover:bg-surface-container-low">Fermer</button>
+        <button class="flex-1 py-2 bg-secondary text-white rounded-lg font-title-md hover:opacity-90">Envoyer un message</button>
+      </div>`;
+    document.getElementById('modal').classList.remove('hidden');
+  }
+
+  renderUsers();
+</script>
+</body>
+</html>
