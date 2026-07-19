@@ -12,7 +12,22 @@ start cmd /k "cd /d d:\Antigravity\projet\finance\v1.0.3\admin && npm install &&
 
 echo.
 echo ==========================================
+echo [Optionnel] Tunnel de connexion mobile public
+echo Si vous testez l'app sur un VRAI telephone,
+echo vous avez besoin d'exposer votre serveur local.
+echo ==========================================
+set /p choice="Lancer un tunnel de connexion public (localtunnel) ? (O/N) : "
+
+if /i "%choice%"=="O" (
+    echo.
+    echo Lancement du tunnel sur le port 3001...
+    start cmd /k "npx localtunnel --port 3001"
+    echo.
+    echo Copiez l'adresse generee (ex: https://xxxx.localtunnel.me) 
+    echo et collez-la dans les parametres (engrenage) de l'application mobile !
+)
+
+echo.
 echo Les serveurs s'ouvrent dans des fenetres separees.
-echo L'application mobile peut maintenant se connecter !
 echo ==========================================
 pause
