@@ -1,0 +1,32 @@
+========================================================================
+             BAOU - COMMANDES DE LANCEMENT DU ECOSYSTEME
+========================================================================
+
+Si vous preferez lancer les serveurs manuellement dans vos terminaux, 
+copiez-collez les commandes suivantes :
+
+------------------------------------------------------------------------
+1. POUR LE BACKEND (Express)
+------------------------------------------------------------------------
+Ouvrez un premier terminal à la racine du projet et tapez :
+
+cd backend
+npm install
+node server.js
+
+------------------------------------------------------------------------
+2. POUR L'ADMINISTRATION (React)
+------------------------------------------------------------------------
+Ouvrez un second terminal à la racine du projet et tapez :
+
+cd admin
+npm install
+npm run dev
+
+------------------------------------------------------------------------
+3. POUR L'APPLICATION MOBILE (Android)
+------------------------------------------------------------------------
+- Ouvrez le projet avec Android Studio.
+- Cliquez sur le bouton "Run" (fleche verte) pour deployer sur votre telephone.
+- N'oubliez pas de configurer l'URL avec l'icone engrenage dans l'application !
+========================================================================
