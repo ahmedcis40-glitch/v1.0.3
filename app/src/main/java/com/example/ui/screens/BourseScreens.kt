@@ -170,6 +170,82 @@ fun BourseBottomNavBar(currentScreen: Screen, onNavigate: (Screen) -> Unit) {
 fun WelcomeScreen(viewModel: BourseViewModel) {
     val userProfile by viewModel.userProfile.collectAsStateWithLifecycle()
     val showGoogleChooser by viewModel.showGoogleAccountChooser.collectAsStateWithLifecycle()
+    val showServerUrlSettings by viewModel.showServerUrlSettings.collectAsStateWithLifecycle()
+    val serverUrlInput by viewModel.serverUrlInput.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    if (showServerUrlSettings) {
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { viewModel.showServerUrlSettings.value = false }
+        ) {
+            androidx.compose.material3.Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(horizontal = 16.dp),
+                shape = RoundedCornerShape(28.dp),
+                color = Color.White,
+                tonalElevation = 6.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = "Configuration Serveur",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1F1F1F)
+                    )
+                    
+                    Text(
+                        text = "Saisissez l'adresse de votre backend local ou hébergé en ligne pour communiquer.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF444746),
+                        textAlign = TextAlign.Center
+                    )
+                    
+                    var tempUrl by remember { mutableStateOf(serverUrlInput) }
+                    
+                    OutlinedTextField(
+                        value = tempUrl,
+                        onValueChange = { tempUrl = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Adresse du serveur") },
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = { viewModel.showServerUrlSettings.value = false },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("Annuler")
+                        }
+                        Button(
+                            onClick = {
+                                viewModel.saveServerUrl(tempUrl, context)
+                                viewModel.showServerUrlSettings.value = false
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = OrangeBrand),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("Enregistrer")
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     if (showGoogleChooser) {
         androidx.compose.ui.window.Dialog(
@@ -327,8 +403,19 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        // Upper Glow effect spacer
-        Spacer(modifier = Modifier.height(24.dp))
+        // Configuration Serveur Settings Button
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            IconButton(onClick = { viewModel.showServerUrlSettings.value = true }) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Configuration Serveur",
+                    tint = OrangeBrand
+                )
+            }
+        }
 
         // Branding
         Column(

@@ -16,6 +16,7 @@ class MainActivity : ComponentActivity() {
     setContent {
       MyApplicationTheme {
         val viewModel: BourseViewModel = viewModel()
+        viewModel.initializeServerUrl(applicationContext)
         BourseMainLayout(viewModel = viewModel)
       }
     }

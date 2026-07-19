@@ -67,17 +67,30 @@ interface BourseService {
 }
 
 object ApiClient {
-    private const val BASE_URL = "http://10.0.2.2:3001/api/"
+    private var currentUrl = "http://10.0.2.2:3001/api/"
 
     private val moshi = Moshi.Builder()
         .addLast(KotlinJsonAdapterFactory())
         .build()
 
-    val service: BourseService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
+    private var retrofit = Retrofit.Builder()
+        .baseUrl(currentUrl)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
+
+    var service: BourseService = retrofit.create(BourseService::class.java)
+        private set
+
+    fun updateBaseUrl(newUrl: String) {
+        val sanitized = if (newUrl.endsWith("/")) newUrl else "$newUrl/"
+        if (sanitized == currentUrl) return
+        currentUrl = sanitized
+        retrofit = Retrofit.Builder()
+            .baseUrl(currentUrl)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
-            .create(BourseService::class.java)
+        service = retrofit.create(BourseService::class.java)
     }
+
+    fun getBaseUrl(): String = currentUrl
 }

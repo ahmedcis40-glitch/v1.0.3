@@ -109,6 +109,25 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
     val signatureBytes = MutableStateFlow<ByteArray?>(null)
 
     val showGoogleAccountChooser = MutableStateFlow(false)
+    val showServerUrlSettings = MutableStateFlow(false)
+    val serverUrlInput = MutableStateFlow("http://10.0.2.2:3001/api/")
+
+    fun initializeServerUrl(context: android.content.Context) {
+        val prefs = context.getSharedPreferences("baou_prefs", android.content.Context.MODE_PRIVATE)
+        val savedUrl = prefs.getString("server_url", "http://10.0.2.2:3001/api/") ?: "http://10.0.2.2:3001/api/"
+        serverUrlInput.value = savedUrl
+        com.example.data.network.ApiClient.updateBaseUrl(savedUrl)
+    }
+
+    fun saveServerUrl(url: String, context: android.content.Context) {
+        val prefs = context.getSharedPreferences("baou_prefs", android.content.Context.MODE_PRIVATE)
+        prefs.edit().putString("server_url", url).apply()
+        serverUrlInput.value = url
+        com.example.data.network.ApiClient.updateBaseUrl(url)
+        viewModelScope.launch {
+            _transactionStatus.emit("Adresse du serveur configurée !")
+        }
+    }
 
     // General transaction status / toast message
     private val _transactionStatus = MutableSharedFlow<String>()
