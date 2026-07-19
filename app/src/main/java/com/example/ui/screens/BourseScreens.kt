@@ -2102,7 +2102,7 @@ fun PortfolioScreen(viewModel: BourseViewModel) {
                     letterSpacing = 1.sp
                 )
 
-                val netValue = (userProfile?.portfolioValue ?: 14520000.0) + (userProfile?.cashBalance ?: 125000.0)
+                val netValue = (userProfile?.portfolioValue ?: 0.0) + (userProfile?.cashBalance ?: 0.0)
                 Text(
                     text = netValue.formatFcfa(),
                     style = MaterialTheme.typography.headlineLarge,
@@ -2120,7 +2120,7 @@ fun PortfolioScreen(viewModel: BourseViewModel) {
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Icon(Icons.Default.TrendingUp, contentDescription = null, tint = ForestGreen, modifier = Modifier.size(14.dp))
-                    Text("+5.2% / +75 000 FCFA", style = MaterialTheme.typography.labelSmall, color = ForestGreen, fontWeight = FontWeight.Bold)
+                    Text("Portefeuille Titres SGI BRVM", style = MaterialTheme.typography.labelSmall, color = ForestGreen, fontWeight = FontWeight.Bold)
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -2148,7 +2148,7 @@ fun PortfolioScreen(viewModel: BourseViewModel) {
                 Column {
                     Text("SOLDE DISPONIBLE", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(4.dp))
-                    val availCash = userProfile?.cashBalance ?: 125000.0
+                    val availCash = userProfile?.cashBalance ?: 0.0
                     Text(availCash.formatFcfa(), fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
                     Text("Prêt à investir", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
