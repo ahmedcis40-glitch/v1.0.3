@@ -9,11 +9,12 @@ data class UserEntity(
     val firstName: String = "",
     val lastName: String = "",
     val birthDate: String = "",
+    val whatsapp: String = "", // WhatsApp contact for KYC verification
     val kycStep: Int = 0, // 0 = Welcome/Login, 1 = Personal Details Form, 2 = Document verification (KYC), 3 = Proof of address, 4 = Signature contract, 5 = Signed & Verified
-    val cashBalance: Double = 1245000.0, // Default in FCFA
-    val portfolioValue: Double = 14520000.0,
-    val isPremium: Boolean = true,
-    val membershipDate: String = "Janvier 2023"
+    val cashBalance: Double = 0.0, // Initial balance in FCFA is 0
+    val portfolioValue: Double = 0.0, // Initial portfolio value is 0
+    val isPremium: Boolean = false,
+    val membershipDate: String = ""
 )
 
 @Entity(tableName = "transactions")

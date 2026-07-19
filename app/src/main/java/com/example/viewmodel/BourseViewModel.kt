@@ -130,9 +130,60 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    // Additional registration, support & security states
+    val whatsappInput = MutableStateFlow("")
+    val is2faEnabled = MutableStateFlow(false)
+    val isFingerprintEnabled = MutableStateFlow(false)
+    val supportSubjectInput = MutableStateFlow("Assistance Client")
+    val supportMessageInput = MutableStateFlow("")
+
     // General transaction status / toast message
     private val _transactionStatus = MutableSharedFlow<String>()
     val transactionStatus: SharedFlow<String> = _transactionStatus.asSharedFlow()
+
+    fun performRegister(email: String, password: String, firstName: String, onComplete: (String?) -> Unit) {
+        viewModelScope.launch {
+            val result = repository.register(email, password, firstName)
+            if (result == "SUCCESS") {
+                // Auto login after successful registration
+                val loginResult = repository.login(email, password)
+                if (loginResult == "SUCCESS") {
+                    val context = getApplication<Application>().applicationContext
+                    val prefs = context.getSharedPreferences("baou_prefs", android.content.Context.MODE_PRIVATE)
+                    prefs.edit()
+                        .putString("auth_email", email)
+                        .putString("auth_password", password)
+                        .apply()
+                    _transactionStatus.emit("Inscription et connexion réussies !")
+                    onComplete(null)
+                } else {
+                    onComplete("Créé avec succès, mais échec de connexion automatique: $loginResult")
+                }
+            } else {
+                onComplete(result)
+            }
+        }
+    }
+
+    fun sendSupportMessage(onComplete: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            val msg = supportMessageInput.value
+            val subj = supportSubjectInput.value
+            if (msg.isNotBlank()) {
+                val success = repository.sendSupportMessage(subj, msg)
+                if (success) {
+                    _transactionStatus.emit("Message envoyé à l'administrateur !")
+                    supportMessageInput.value = ""
+                    onComplete(true)
+                } else {
+                    _transactionStatus.emit("Échec de l'envoi du message.")
+                    onComplete(false)
+                }
+            } else {
+                onComplete(false)
+            }
+        }
+    }
 
     fun performLogin(email: String = "mamadou.konate@email.ci", password: String = "password123", onComplete: (Boolean) -> Unit = {}) {
         viewModelScope.launch {
@@ -225,10 +276,11 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
                 firstName = firstNameInput.value,
                 lastName = lastNameInput.value,
                 birthDate = birthDateInput.value,
+                whatsapp = whatsappInput.value,
                 kycStep = 2 // Move to Identity validation step
             )
             repository.saveUserProfile(updated)
-            repository.updateBackendProfile(firstNameInput.value, lastNameInput.value, "pending")
+            repository.updateBackendProfile(firstNameInput.value, lastNameInput.value, "pending", whatsappInput.value)
             onboardingStep.value = 2
         }
     }
@@ -256,7 +308,7 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
             val profile = repository.userProfile.first() ?: return@launch
             val updated = profile.copy(kycStep = 5) // Fully verified
             repository.saveUserProfile(updated)
-            repository.updateBackendProfile(profile.firstName, profile.lastName, "verified")
+            repository.updateBackendProfile(profile.firstName, profile.lastName, "verified", profile.whatsapp)
             _transactionStatus.emit("Inscription validée avec succès !")
             repository.syncTransactions() // Synchroniser après vérification
             navigateTo(Screen.DASHBOARD)
@@ -276,9 +328,10 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
                 firstName = "",
                 lastName = "",
                 birthDate = "",
+                whatsapp = "",
                 kycStep = 0,
-                cashBalance = 125000.0,
-                portfolioValue = 14520000.0
+                cashBalance = 0.0,
+                portfolioValue = 0.0
             )
             repository.saveUserProfile(resetProfile)
             onboardingStep.value = 1
@@ -300,9 +353,10 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
                     firstName = "",
                     lastName = "",
                     birthDate = "",
+                    whatsapp = "",
                     kycStep = 0,
-                    cashBalance = 125000.0,
-                    portfolioValue = 14520000.0
+                    cashBalance = 0.0,
+                    portfolioValue = 0.0
                 )
                 repository.saveUserProfile(resetProfile)
                 onboardingStep.value = 1

@@ -52,16 +52,29 @@ data class TransactionNetworkData(
 
 data class TransactionsResponse(val success: Boolean, val count: Int, val data: List<TransactionNetworkData>)
 
-data class UpdateProfileRequest(val firstName: String, val lastName: String, val kycStatus: String)
+data class UpdateProfileRequest(val firstName: String, val lastName: String, val kycStatus: String, val whatsapp: String? = null)
+
+data class RegisterRequest(val email: String, val password: String, val firstName: String)
+
+data class SupportRequest(val subject: String, val message: String)
 
 interface BourseService {
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): LoginResponse
 
+    @POST("auth/register")
+    suspend fun register(@Body request: RegisterRequest): retrofit2.Response<Unit>
+
     @POST("auth/update-profile")
     suspend fun updateProfile(
         @Header("Authorization") token: String,
         @Body request: UpdateProfileRequest
+    ): retrofit2.Response<Unit>
+
+    @POST("auth/support")
+    suspend fun sendSupport(
+        @Header("Authorization") token: String,
+        @Body request: SupportRequest
     ): retrofit2.Response<Unit>
 
     @GET("transactions")

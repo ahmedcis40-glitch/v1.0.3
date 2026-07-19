@@ -35,9 +35,10 @@ class BourseRepository(private val bourseDao: BourseDao) {
                     firstName = response.user.name.substringBefore(" "),
                     lastName = response.user.name.substringAfter(" ", ""),
                     birthDate = "",
+                    whatsapp = "", // Updated dynamically during KYC onboarding
                     kycStep = if (response.user.kyc == "verified") 5 else 1,
                     cashBalance = response.user.balance ?: 0.0,
-                    portfolioValue = 1450000.0,
+                    portfolioValue = 0.0,
                     isPremium = response.user.type == "Premium" || response.user.role == "admin",
                     membershipDate = response.user.joinedAt ?: "Janvier 2023"
                 )
@@ -53,12 +54,42 @@ class BourseRepository(private val bourseDao: BourseDao) {
         }
     }
 
-    suspend fun updateBackendProfile(firstName: String, lastName: String, kycStatus: String): Boolean {
+    suspend fun updateBackendProfile(firstName: String, lastName: String, kycStatus: String, whatsapp: String? = null): Boolean {
         val currentToken = token ?: return false
         return try {
             val response = com.example.data.network.ApiClient.service.updateProfile(
                 currentToken,
-                com.example.data.network.UpdateProfileRequest(firstName, lastName, kycStatus)
+                com.example.data.network.UpdateProfileRequest(firstName, lastName, kycStatus, whatsapp)
+            )
+            response.isSuccessful
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+    suspend fun register(email: String, password: String, firstName: String): String {
+        return try {
+            val response = com.example.data.network.ApiClient.service.register(
+                com.example.data.network.RegisterRequest(email, password, firstName)
+            )
+            if (response.isSuccessful) {
+                "SUCCESS"
+            } else {
+                "Échec: " + (response.errorBody()?.string() ?: "Code ${response.code()}")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            "Erreur réseau: ${e.localizedMessage}"
+        }
+    }
+
+    suspend fun sendSupportMessage(subject: String, message: String): Boolean {
+        val currentToken = token ?: return false
+        return try {
+            val response = com.example.data.network.ApiClient.service.sendSupport(
+                currentToken,
+                com.example.data.network.SupportRequest(subject, message)
             )
             response.isSuccessful
         } catch (e: Exception) {
@@ -101,7 +132,7 @@ class BourseRepository(private val bourseDao: BourseDao) {
                 // Recalculer le solde et les positions d'après le serveur
                 val profile = bourseDao.getUserProfile()
                 if (profile != null) {
-                    var balance = 125000.0 // Solde initial de démo
+                    var balance = profile.cashBalance
                     
                     // On recalcule aussi les positions locales d'après les transactions validées
                     bourseDao.clearAllHoldings()

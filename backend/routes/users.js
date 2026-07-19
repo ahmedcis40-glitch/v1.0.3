@@ -66,8 +66,8 @@ router.get('/users/:id', requireAuth, requireAdmin, (req, res) => {
 // PATCH /api/admin/users/:id/kyc — Mettre à jour le statut KYC
 router.patch('/users/:id/kyc', requireAuth, requireAdmin, (req, res) => {
   const { status } = req.body;
-  if (!['verified', 'pending', 'suspended'].includes(status)) {
-    return res.status(400).json({ error: 'Statut KYC invalide. Valeurs: verified, pending, suspended' });
+  if (!['verified', 'pending', 'rejected', 'suspended'].includes(status)) {
+    return res.status(400).json({ error: 'Statut KYC invalide. Valeurs: verified, pending, rejected, suspended' });
   }
 
   const user = users.find(u => u.id === req.params.id);
@@ -99,6 +99,23 @@ router.patch('/users/:id/suspend', requireAuth, requireAdmin, (req, res) => {
     message: `Compte de ${user.name} ${action}.`,
     data: { id: user.id, name: user.name, kyc: user.kyc },
   });
+});
+
+// GET /api/admin/support — Admin: lister tous les tickets de support
+router.get('/support', requireAuth, requireAdmin, (req, res) => {
+  const { tickets } = require('../data/store');
+  res.json({ success: true, count: tickets.length, data: tickets });
+});
+
+// PATCH /api/admin/support/:id/status — Admin: mettre à jour le statut d'un ticket (résolu, etc.)
+router.patch('/support/:id/status', requireAuth, requireAdmin, (req, res) => {
+  const { status } = req.body;
+  const { tickets } = require('../data/store');
+  const ticket = tickets.find(t => t.id === req.params.id);
+  if (!ticket) return res.status(404).json({ error: 'Ticket introuvable.' });
+
+  ticket.status = status;
+  res.json({ success: true, message: `Ticket ${ticket.id} mis à jour: ${status}`, data: ticket });
 });
 
 module.exports = router;

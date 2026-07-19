@@ -19,11 +19,15 @@ import {
 interface UserManagementViewProps {
   users: User[];
   onAddUser: (user: Omit<User, 'id'>) => void;
+  onUpdateKyc: (id: string, status: 'VERIFIED' | 'PENDING' | 'REJECTED') => void;
+  onToggleSuspend: (id: string) => void;
 }
 
 export const UserManagementView: React.FC<UserManagementViewProps> = ({
   users,
-  onAddUser
+  onAddUser,
+  onUpdateKyc,
+  onToggleSuspend
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [kycFilter, setKycFilter] = useState('');
@@ -373,12 +377,41 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                     </td>
                     {/* Action trigger button */}
                     <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end items-center gap-1.5">
+                      <div className="flex justify-end items-center gap-2">
+                        {user.kycStatus === 'PENDING' && (
+                          <>
+                            <button 
+                              onClick={() => onUpdateKyc(user.id, 'VERIFIED')}
+                              className="px-2.5 py-1 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-sans font-bold text-[11px] rounded-lg transition-all active:scale-95 shadow-xs"
+                            >
+                              Valider KYC
+                            </button>
+                            <button 
+                              onClick={() => onUpdateKyc(user.id, 'REJECTED')}
+                              className="px-2.5 py-1 bg-red-100 hover:bg-red-200 text-red-800 font-sans font-bold text-[11px] rounded-lg transition-all active:scale-95 shadow-xs"
+                            >
+                              Rejeter
+                            </button>
+                          </>
+                        )}
+                        {user.kycStatus === 'VERIFIED' && (
+                          <button 
+                            onClick={() => onToggleSuspend(user.id)}
+                            className="px-2.5 py-1 bg-amber-100 hover:bg-amber-200 text-amber-800 font-sans font-bold text-[11px] rounded-lg transition-all active:scale-95 shadow-xs"
+                          >
+                            Suspendre
+                          </button>
+                        )}
+                        {user.kycStatus === 'REJECTED' && (
+                          <button 
+                            onClick={() => onToggleSuspend(user.id)}
+                            className="px-2.5 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 font-sans font-bold text-[11px] rounded-lg transition-all active:scale-95 shadow-xs"
+                          >
+                            Réactiver
+                          </button>
+                        )}
                         <button className="px-3 py-1 bg-[#eff4ff] hover:bg-[#ffdcc6]/40 text-[#954a00] font-sans font-bold text-[12px] rounded-lg transition-all active:scale-95 shadow-xs">
                           Détails
-                        </button>
-                        <button className="p-1.5 text-[#574235]/60 hover:text-[#0b1c30] hover:bg-[#eff4ff] rounded-lg transition-colors">
-                          <MoreVertical className="w-4 h-4" />
                         </button>
                       </div>
                     </td>

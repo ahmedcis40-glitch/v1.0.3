@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Page, Transaction, User, SupportTicket } from './types';
-import { initialTransactions, initialUsers, initialTickets } from './data';
+import { initialMarketQuotes } from './data';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { DashboardView } from './components/DashboardView';
@@ -8,24 +8,107 @@ import { TransactionsView } from './components/TransactionsView';
 import { UserManagementView } from './components/UserManagementView';
 import { SettingsView } from './components/SettingsView';
 import { SupportView } from './components/SupportView';
-import { 
-  Bell, 
-  CheckCircle2, 
-  XCircle, 
-  Plus, 
-  X, 
+import {
+  Bell,
+  X,
   Landmark,
-  LogIn,
   Eye,
-  EyeOff
+  EyeOff,
+  Loader2
 } from 'lucide-react';
 
-const ADMIN_EMAIL = 'admin@elephantbourse.ci';
-const ADMIN_PASSWORD = 'admin2024';
+// ── Backend URL ───────────────────────────────────────────────────────────────
+const API_BASE = 'http://localhost:3001/api';
+const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80';
 
+// ── Data mappers ──────────────────────────────────────────────────────────────
+function mapUser(u: any): User {
+  const kyc = (u.kyc || '').toLowerCase();
+  return {
+    id: u.id,
+    name: u.name || 'Inconnu',
+    email: u.email || '',
+    avatar: u.avatar || DEFAULT_AVATAR,
+    accountType: u.accountType === 'Premium' ? 'Premium' : 'Standard',
+    kycStatus:
+      kyc === 'verified'
+        ? 'VERIFIED'
+        : kyc === 'rejected' || kyc === 'suspended'
+        ? 'REJECTED'
+        : 'PENDING',
+    lastActivityDate: u.joinedAt
+      ? new Date(u.joinedAt).toLocaleDateString('fr-FR')
+      : 'Aujourd\'hui',
+    lastActivityPlatform: 'App Android',
+  };
+}
+
+function mapTransaction(t: any): Transaction {
+  const s = (t.status || '').toLowerCase();
+  return {
+    id: t.id,
+    clientName: t.userName || 'Client',
+    clientId: t.userId || t.id,
+    clientEmail: `${(t.userId || '').toLowerCase()}@email.ci`,
+    clientAvatar: DEFAULT_AVATAR,
+    accountType: 'Standard',
+    balance: 0,
+    ticker: t.ticker || '-',
+    companyName: t.company || t.ticker || '-',
+    type: (t.type || 'BUY').toUpperCase() as 'BUY' | 'SELL',
+    quantity: t.quantity || 0,
+    unitPrice: t.price || 0,
+    totalAmount: t.total || 0,
+    market: 'BRVM',
+    dateString: t.submittedAt
+      ? new Date(t.submittedAt).toLocaleDateString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+      : 'Aujourd\'hui',
+    status:
+      s === 'validated'
+        ? 'APPROVED'
+        : s === 'rejected'
+        ? 'REJECTED'
+        : 'PENDING',
+    paymentMethod: t.paymentMethod || 'Non spécifié',
+    paymentMethodCode: 'OM',
+    reference: t.paymentRef || `REF-${t.id}`,
+    proofFileName: `Reçu_${t.id}.pdf`,
+    proofFileSize: '1.2 MB',
+    proofUploadTime: 'A l\'instant',
+  };
+}
+
+function mapTicket(tk: any): SupportTicket {
+  const s = (tk.status || 'OUVERT').toUpperCase();
+  return {
+    id: tk.id,
+    clientName: tk.clientName || 'Client',
+    clientId: tk.clientId || tk.userId || '-',
+    subject: tk.subject || 'Message de support',
+    description: tk.message || '',
+    priority: 'MOYENNE',
+    status:
+      s === 'EN_COURS'
+        ? 'EN_COURS'
+        : s === 'RESOLU'
+        ? 'RESOLU'
+        : 'OUVERT',
+    dateString: tk.createdAt
+      ? new Date(tk.createdAt).toLocaleDateString('fr-FR')
+      : 'Aujourd\'hui',
+    timeString: tk.createdAt
+      ? new Date(tk.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+      : '10:00',
+  };
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 export default function App() {
+
   // ── Auth State ───────────────────────────────────────────
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('admin_token'));
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('admin_token'));
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -34,12 +117,13 @@ export default function App() {
   // ── Navigation & States ─────────────────────────────────
   const [currentPage, setCurrentPage] = useState<Page>(Page.Dashboard);
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   // ── Central State stores ────────────────────────────────
-  const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
-  const [users, setUsers] = useState<User[]>(initialUsers);
-  const [tickets, setTickets] = useState<SupportTicket[]>(initialTickets);
-  
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(false);
+
   // ── Selection pointers ──────────────────────────────────
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
@@ -58,76 +142,230 @@ export default function App() {
   const [opType, setOpType] = useState<'BUY' | 'SELL'>('BUY');
   const [opMethod, setOpMethod] = useState<'OM' | 'WV' | 'BANK'>('OM');
 
+  // ── Toast helper ─────────────────────────────────────────
+  const triggerToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4500);
+  }, []);
+
+  // ── Fetch all data from backend ──────────────────────────
+  const fetchAllData = useCallback(async (adminToken: string) => {
+    if (!adminToken) return;
+    setIsLoadingData(true);
+    try {
+      const headers = { Authorization: `Bearer ${adminToken}` };
+
+      const [usersRes, txRes, supportRes] = await Promise.allSettled([
+        fetch(`${API_BASE}/admin/users`, { headers }),
+        fetch(`${API_BASE}/transactions/all`, { headers }),
+        fetch(`${API_BASE}/admin/support`, { headers }),
+      ]);
+
+      if (usersRes.status === 'fulfilled' && usersRes.value.ok) {
+        const json = await usersRes.value.json();
+        if (json.success && Array.isArray(json.data)) {
+          setUsers(json.data.map(mapUser));
+        }
+      }
+
+      if (txRes.status === 'fulfilled' && txRes.value.ok) {
+        const json = await txRes.value.json();
+        if (json.success && Array.isArray(json.data)) {
+          setTransactions(json.data.map(mapTransaction));
+        }
+      }
+
+      if (supportRes.status === 'fulfilled' && supportRes.value.ok) {
+        const json = await supportRes.value.json();
+        if (json.success && Array.isArray(json.data)) {
+          setTickets(json.data.map(mapTicket));
+        }
+      }
+    } catch (err) {
+      console.error('[Admin] Erreur chargement données:', err);
+    } finally {
+      setIsLoadingData(false);
+    }
+  }, []);
+
+  // ── Auto-load data when logged in ────────────────────────
+  useEffect(() => {
+    if (isLoggedIn && token) {
+      fetchAllData(token);
+      const interval = setInterval(() => fetchAllData(token), 15000); // refresh every 15s
+      return () => clearInterval(interval);
+    }
+  }, [isLoggedIn, token, fetchAllData]);
+
   // ── Auth Handlers ────────────────────────────────────────
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginEmail === ADMIN_EMAIL && loginPassword === ADMIN_PASSWORD) {
-      setIsLoggedIn(true);
-      setLoginError('');
-    } else {
-      setLoginError('Email ou mot de passe incorrect.');
+    setIsLoggingIn(true);
+    setLoginError('');
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (data.user?.role !== 'admin') {
+          setLoginError('Accès réservé aux administrateurs.');
+          return;
+        }
+        localStorage.setItem('admin_token', data.token);
+        setToken(data.token);
+        setIsLoggedIn(true);
+        setLoginError('');
+      } else {
+        setLoginError(data.error || 'Email ou mot de passe incorrect.');
+      }
+    } catch (err) {
+      setLoginError('Impossible de joindre le serveur. Vérifiez que le backend est démarré.');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('admin_token');
+    setToken(null);
     setIsLoggedIn(false);
     setLoginEmail('');
     setLoginPassword('');
+    setUsers([]);
+    setTransactions([]);
+    setTickets([]);
     setCurrentPage(Page.Dashboard);
     triggerToast('Vous avez été déconnecté avec succès.', 'info');
   };
 
-  // ── Toast helper ─────────────────────────────────────────
-  const triggerToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 4000);
-  };
-
-  // ── Transaction actions ──────────────────────────────────
-  const handleApproveTransaction = (id: string) => {
-    setTransactions(prev => prev.map(t => {
-      if (t.id === id) {
-        triggerToast(`Transaction ${id} validée avec succès ! Fonds transférés.`, 'success');
-        return { ...t, status: 'APPROVED' };
+  // ── Transaction actions (real API) ───────────────────────
+  const handleApproveTransaction = async (id: string) => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE}/transactions/${id}/validate`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        triggerToast(`Transaction ${id} validée avec succès ! Portefeuille client mis à jour.`, 'success');
+        fetchAllData(token);
+      } else {
+        triggerToast(data.error || 'Erreur lors de la validation.', 'error');
       }
-      return t;
-    }));
+    } catch {
+      triggerToast('Impossible de joindre le serveur.', 'error');
+    }
   };
 
-  const handleRejectTransaction = (id: string, reason?: string) => {
-    setTransactions(prev => prev.map(t => {
-      if (t.id === id) {
-        triggerToast(`Transaction ${id} rejetée : ${reason || 'Preuve non-conforme'}`, 'error');
-        return { ...t, status: 'REJECTED', note: reason };
+  const handleRejectTransaction = async (id: string, reason?: string) => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE}/transactions/${id}/reject`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ reason: reason || 'Preuve non-conforme' }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        triggerToast(`Transaction ${id} rejetée.`, 'error');
+        fetchAllData(token);
+      } else {
+        triggerToast(data.error || 'Erreur lors du rejet.', 'error');
       }
-      return t;
-    }));
+    } catch {
+      triggerToast('Impossible de joindre le serveur.', 'error');
+    }
   };
 
-  // ── User creation ────────────────────────────────────────
+  // ── User KYC actions (real API) ──────────────────────────
+  const handleUpdateKyc = async (id: string, status: 'VERIFIED' | 'PENDING' | 'REJECTED') => {
+    if (!token) return;
+    const backendStatus = status === 'VERIFIED' ? 'verified' : status === 'REJECTED' ? 'rejected' : 'pending';
+    try {
+      const res = await fetch(`${API_BASE}/admin/users/${id}/kyc`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: backendStatus }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        const label = status === 'VERIFIED' ? 'validé ✅' : 'rejeté ❌';
+        triggerToast(`KYC du client ${id} ${label}. Le client peut ${status === 'VERIFIED' ? 'désormais effectuer des opérations.' : 'être notifié.'}`, 'success');
+        fetchAllData(token);
+      } else {
+        triggerToast(data.error || 'Erreur mise à jour KYC.', 'error');
+      }
+    } catch {
+      triggerToast('Impossible de joindre le serveur.', 'error');
+    }
+  };
+
+  const handleToggleSuspend = async (id: string) => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE}/admin/users/${id}/suspend`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        triggerToast(`Compte ${id} mis à jour.`, 'info');
+        fetchAllData(token);
+      } else {
+        triggerToast(data.error || 'Erreur suspension.', 'error');
+      }
+    } catch {
+      triggerToast('Impossible de joindre le serveur.', 'error');
+    }
+  };
+
+  // ── User creation (local only – pour référence future) ───
   const handleAddUser = (user: Omit<User, 'id'>) => {
     const newId = `EB-2024-${Math.floor(1000 + Math.random() * 9000)}`;
     const fullUser: User = { ...user, id: newId };
     setUsers(prev => [fullUser, ...prev]);
-    triggerToast(`Nouveau compte client ${user.name} créé avec l'identifiant ${newId}.`, 'success');
+    triggerToast(`Nouveau compte client ${user.name} créé localement.`, 'success');
   };
 
-  // ── Support ticket actions ────────────────────────────────
-  const handleUpdateTicketStatus = (id: string, status: SupportTicket['status']) => {
-    setTickets(prev => prev.map(t => {
-      if (t.id === id) {
-        const typeToast = status === 'RESOLU' ? 'success' : 'info';
-        const msg = status === 'RESOLU'
-          ? `Ticket d'assistance ${id} marqué comme RESOLU.`
-          : `Réponse envoyée. Statut du ticket mis à jour : EN COURS.`;
-        triggerToast(msg, typeToast);
-        return { ...t, status };
+  // ── Support ticket actions (real API) ────────────────────
+  const handleUpdateTicketStatus = async (id: string, status: SupportTicket['status']) => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE}/admin/support/${id}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        const msg =
+          status === 'RESOLU'
+            ? `Ticket ${id} marqué comme RÉSOLU.`
+            : `Ticket ${id} mis à jour : EN COURS.`;
+        triggerToast(msg, status === 'RESOLU' ? 'success' : 'info');
+        fetchAllData(token);
+      } else {
+        triggerToast(data.error || 'Erreur mise à jour ticket.', 'error');
       }
-      return t;
-    }));
+    } catch {
+      triggerToast('Impossible de joindre le serveur.', 'error');
+    }
   };
 
-  // ── New operation creator ────────────────────────────────
+  // ── New operation creator (local mock) ───────────────────
   const handleCreateOperation = (e: React.FormEvent) => {
     e.preventDefault();
     if (!opClientName) return;
@@ -138,7 +376,7 @@ export default function App() {
     const totalAmount = priceNum * qtyNum;
 
     const clientMatch = users.find(u => u.name.toLowerCase() === opClientName.toLowerCase());
-    const clientAvatar = clientMatch?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80';
+    const clientAvatar = clientMatch?.avatar || DEFAULT_AVATAR;
     const clientEmail = clientMatch?.email || `${opClientName.toLowerCase().replace(/\s+/g, '.')}@email.ci`;
 
     const newTx: Transaction = {
@@ -148,9 +386,13 @@ export default function App() {
       clientEmail,
       clientAvatar,
       accountType: clientMatch?.accountType || 'Standard',
-      balance: 1450200,
+      balance: 0,
       ticker: opTicker,
-      companyName: opTicker === 'SNTS' ? 'Sonatel CI' : opTicker === 'ONTBF' ? 'Onatel BF' : opTicker === 'CABC' ? 'SGB CI' : 'Bourse Asset',
+      companyName:
+        opTicker === 'SNTS' ? 'Sonatel CI'
+        : opTicker === 'ONTBF' ? 'Onatel BF'
+        : opTicker === 'CABC' ? 'SGB CI'
+        : 'Bourse Asset',
       type: opType,
       quantity: qtyNum,
       unitPrice: priceNum,
@@ -163,7 +405,7 @@ export default function App() {
       reference: `${opMethod}-TX-${Math.floor(100000 + Math.random() * 900000)}`,
       proofFileName: `Proof_Recu_${opId.slice(1)}.pdf`,
       proofFileSize: '1.4 MB',
-      proofUploadTime: 'A l\'instant'
+      proofUploadTime: 'A l\'instant',
     };
 
     setTransactions(prev => [newTx, ...prev]);
@@ -199,24 +441,25 @@ export default function App() {
           </div>
 
           {/* Login Card */}
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
-            <h2 className="text-xl font-bold text-white mb-6">Connexion Admin</h2>
-            <form onSubmit={handleLogin} className="space-y-4">
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 shadow-2xl">
+            <h2 className="text-white font-bold text-xl mb-6">Connexion sécurisée</h2>
+            <form onSubmit={handleLogin} className="space-y-5">
               <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-[#dec1af]/80 uppercase tracking-wider">
-                  Adresse e-mail
+                <label className="block font-sans font-bold text-[11px] text-[#dec1af]/80 uppercase tracking-wider">
+                  Adresse Email
                 </label>
                 <input
                   type="email"
                   required
                   value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
+                  onChange={e => setLoginEmail(e.target.value)}
                   placeholder="admin@elephantbourse.ci"
-                  className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#ff8200] text-sm"
+                  className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/30 font-sans text-[14px] focus:outline-none focus:border-[#ff8200] focus:bg-white/15 transition-all"
                 />
               </div>
+
               <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-[#dec1af]/80 uppercase tracking-wider">
+                <label className="block font-sans font-bold text-[11px] text-[#dec1af]/80 uppercase tracking-wider">
                   Mot de passe
                 </label>
                 <div className="relative">
@@ -224,13 +467,13 @@ export default function App() {
                     type={showPassword ? 'text' : 'password'}
                     required
                     value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
+                    onChange={e => setLoginPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 pr-12 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#ff8200] text-sm"
+                    className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 pr-12 text-white placeholder-white/30 font-sans text-[14px] focus:outline-none focus:border-[#ff8200] focus:bg-white/15 transition-all"
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => setShowPassword(v => !v)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/80 transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -239,24 +482,30 @@ export default function App() {
               </div>
 
               {loginError && (
-                <div className="flex items-center gap-2 p-3 bg-red-500/20 border border-red-500/30 rounded-xl">
-                  <XCircle className="w-4 h-4 text-red-400 shrink-0" />
-                  <p className="text-red-300 text-sm">{loginError}</p>
+                <div className="bg-red-500/15 border border-red-500/30 rounded-xl px-4 py-3">
+                  <p className="text-red-300 font-sans text-[13px] font-medium">{loginError}</p>
                 </div>
               )}
 
               <button
                 type="submit"
-                className="w-full bg-[#ff8200] hover:bg-[#e67500] text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-[#ff8200]/30 mt-2"
+                disabled={isLoggingIn}
+                className="w-full bg-[#ff8200] hover:bg-[#e67400] text-white font-sans font-bold text-[15px] py-3.5 rounded-xl transition-all active:scale-95 shadow-lg shadow-[#ff8200]/30 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <LogIn className="w-5 h-5" />
-                Se connecter
+                {isLoggingIn ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Connexion en cours...
+                  </>
+                ) : (
+                  'Se connecter'
+                )}
               </button>
             </form>
           </div>
 
-          <p className="text-center text-[#dec1af]/40 text-xs mt-6">
-            BAOU Finance — Portail de gestion réservé aux administrateurs
+          <p className="text-center text-[#dec1af]/40 font-sans text-[12px] mt-6">
+            BAOU Finance Admin v2.0 · Accès restreint
           </p>
         </div>
       </div>
@@ -267,139 +516,102 @@ export default function App() {
   //  MAIN ADMIN DASHBOARD
   // ═══════════════════════════════════════════════════════
   return (
-    <div className="min-h-screen bg-[#f8f9ff] text-[#0b1c30] antialiased">
+    <div className="min-h-screen bg-[#f4f5f9] font-sans relative">
 
-      {/* Toast Notifications */}
+      {/* Toast notification */}
       {toast && (
-        <div className="fixed top-6 right-6 z-[200] max-w-sm w-full bg-white border border-[#dec1af]/40 shadow-2xl rounded-2xl p-4 flex gap-3 animate-slide-in transform transition-all duration-300">
-          {toast.type === 'success' ? (
-            <CheckCircle2 className="w-6 h-6 text-[#006d31] shrink-0" />
-          ) : toast.type === 'error' ? (
-            <XCircle className="w-6 h-6 text-red-600 shrink-0" />
-          ) : (
-            <Bell className="w-6 h-6 text-[#ff8200] shrink-0" />
-          )}
+        <div className={`fixed top-6 right-6 z-[200] max-w-sm w-full border shadow-2xl rounded-2xl p-4 flex gap-3 animate-slideInRight
+          ${toast.type === 'success' ? 'bg-white border-emerald-200' : toast.type === 'error' ? 'bg-white border-red-200' : 'bg-white border-blue-200'}`}>
+          <Bell className={`w-6 h-6 shrink-0 ${toast.type === 'success' ? 'text-emerald-500' : toast.type === 'error' ? 'text-red-500' : 'text-[#ff8200]'}`} />
           <div className="flex-1">
-            <h4 className="font-sans font-bold text-[14px] text-[#0b1c30]">Notification Système</h4>
-            <p className="font-sans text-[12px] text-[#574235]/90 mt-1 leading-normal">{toast.message}</p>
+            <h4 className="font-sans font-bold text-[14px] text-[#0b1c30]">
+              {toast.type === 'success' ? 'Succès' : toast.type === 'error' ? 'Erreur' : 'Information'}
+            </h4>
+            <p className="font-sans text-[12px] text-[#574235]/90 mt-1">{toast.message}</p>
           </div>
-          <button onClick={() => setToast(null)} className="text-[#574235]/40 hover:text-gray-900 shrink-0 self-start">
-            <X className="w-4 h-4" />
-          </button>
+          <button onClick={() => setToast(null)}><X className="w-4 h-4 text-gray-400" /></button>
+        </div>
+      )}
+
+      {/* Loading indicator */}
+      {isLoadingData && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[150] bg-[#0b1c30] text-white font-sans text-[12px] font-bold px-4 py-2 rounded-full flex items-center gap-2 shadow-xl">
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          Synchronisation en cours...
         </div>
       )}
 
       {/* New Operation Modal */}
       {showNewOpModal && (
-        <div className="fixed inset-0 bg-[#0b1c30]/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[#0b1c30]/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl border border-[#dec1af]/30 overflow-hidden">
             <div className="p-6 border-b border-[#dec1af]/25 flex justify-between items-center bg-[#f8f9ff]">
-              <h3 className="font-sans font-bold text-[18px] text-[#0b1c30] flex items-center gap-2">
-                <Plus className="text-[#ff8200] w-5 h-5" />
-                Soumettre un Nouvel Ordre
-              </h3>
-              <button 
-                onClick={() => setShowNewOpModal(false)}
-                className="text-[#574235] hover:bg-gray-100 rounded-full p-1.5 transition-colors"
-              >
+              <h3 className="font-sans font-bold text-[18px] text-[#0b1c30]">Nouvelle Opération Manuelle</h3>
+              <button onClick={() => setShowNewOpModal(false)} className="text-[#574235] hover:bg-gray-100 rounded-full p-1.5">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <form onSubmit={handleCreateOperation} className="p-6 space-y-4 font-sans text-[14px]">
-              <div className="space-y-1.5">
-                <label className="block font-bold text-[11px] text-[#574235] uppercase">Nom du client</label>
-                <select
-                  required
-                  value={opClientName}
-                  onChange={(e) => {
-                    setOpClientName(e.target.value);
-                    const selected = users.find(u => u.name === e.target.value);
-                    if (selected) setOpClientId(selected.id);
-                  }}
-                  className="w-full bg-white border border-[#dec1af]/45 rounded-lg px-3 py-2 text-[#0b1c30] focus:ring-1 focus:ring-[#ff8200] outline-none"
-                >
-                  <option value="">Sélectionner un client...</option>
-                  {users.map(u => (
-                    <option key={u.id} value={u.name}>{u.name} ({u.id})</option>
-                  ))}
-                </select>
-              </div>
-
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="block font-bold text-[11px] text-[#574235] uppercase">Valeur Ticker</label>
-                  <select
-                    value={opTicker}
-                    onChange={(e) => setOpTicker(e.target.value)}
-                    className="w-full bg-white border border-[#dec1af]/45 rounded-lg px-3 py-2 text-[#0b1c30] focus:ring-1 focus:ring-[#ff8200] outline-none"
-                  >
-                    <option value="SNTS">SNTS (Sonatel CI)</option>
-                    <option value="ONTBF">ONTBF (Onatel BF)</option>
-                    <option value="CABC">CABC (SGB CI)</option>
-                    <option value="BICI">BICI (BICICI)</option>
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="block font-bold text-[11px] text-[#574235] uppercase">Type d'opération</label>
-                  <select
-                    value={opType}
-                    onChange={(e) => setOpType(e.target.value as any)}
-                    className="w-full bg-white border border-[#dec1af]/45 rounded-lg px-3 py-2 text-[#0b1c30] focus:ring-1 focus:ring-[#ff8200] outline-none"
-                  >
-                    <option value="BUY">Achat (BUY)</option>
-                    <option value="SELL">Vente (SELL)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="block font-bold text-[11px] text-[#574235] uppercase">Quantité d'actions</label>
+                <div className="space-y-1.5 col-span-2">
+                  <label className="block font-bold text-[11px] text-[#574235] uppercase">Nom du client</label>
                   <input
-                    type="number"
-                    required
-                    value={opQty}
-                    onChange={(e) => setOpQty(e.target.value)}
+                    type="text" required value={opClientName}
+                    onChange={e => setOpClientName(e.target.value)}
+                    placeholder="Nom complet du client"
                     className="w-full border border-[#dec1af]/45 rounded-lg px-3 py-2 text-[#0b1c30] focus:ring-1 focus:ring-[#ff8200] outline-none"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="block font-bold text-[11px] text-[#574235] uppercase">Prix Unitaire (FCFA)</label>
-                  <input
-                    type="number"
-                    required
-                    value={opUnitPrice}
-                    onChange={(e) => setOpUnitPrice(e.target.value)}
-                    className="w-full border border-[#dec1af]/45 rounded-lg px-3 py-2 text-[#0b1c30] focus:ring-1 focus:ring-[#ff8200] outline-none"
-                  />
+                  <label className="block font-bold text-[11px] text-[#574235] uppercase">Ticker</label>
+                  <select value={opTicker} onChange={e => setOpTicker(e.target.value)}
+                    className="w-full bg-white border border-[#dec1af]/45 rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#ff8200] outline-none">
+                    {initialMarketQuotes.map(q => <option key={q.ticker} value={q.ticker}>{q.ticker} – {q.name}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block font-bold text-[11px] text-[#574235] uppercase">Type</label>
+                  <select value={opType} onChange={e => setOpType(e.target.value as any)}
+                    className="w-full bg-white border border-[#dec1af]/45 rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#ff8200] outline-none">
+                    <option value="BUY">Achat</option>
+                    <option value="SELL">Vente</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block font-bold text-[11px] text-[#574235] uppercase">Quantité</label>
+                  <input type="number" min="1" value={opQty} onChange={e => setOpQty(e.target.value)}
+                    className="w-full border border-[#dec1af]/45 rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#ff8200] outline-none" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block font-bold text-[11px] text-[#574235] uppercase">Prix unitaire (FCFA)</label>
+                  <input type="number" min="1" value={opUnitPrice} onChange={e => setOpUnitPrice(e.target.value)}
+                    className="w-full border border-[#dec1af]/45 rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#ff8200] outline-none" />
+                </div>
+                <div className="space-y-1.5 col-span-2">
+                  <label className="block font-bold text-[11px] text-[#574235] uppercase">Méthode de paiement</label>
+                  <select value={opMethod} onChange={e => setOpMethod(e.target.value as any)}
+                    className="w-full bg-white border border-[#dec1af]/45 rounded-lg px-3 py-2 focus:ring-1 focus:ring-[#ff8200] outline-none">
+                    <option value="OM">Orange Money</option>
+                    <option value="WV">Wave</option>
+                    <option value="BANK">Virement Bancaire</option>
+                  </select>
                 </div>
               </div>
-
-              <div className="space-y-1.5">
-                <label className="block font-bold text-[11px] text-[#574235] uppercase">Méthode de Paiement</label>
-                <select
-                  value={opMethod}
-                  onChange={(e) => setOpMethod(e.target.value as any)}
-                  className="w-full bg-white border border-[#dec1af]/45 rounded-lg px-3 py-2 text-[#0b1c30] focus:ring-1 focus:ring-[#ff8200] outline-none"
-                >
-                  <option value="OM">Orange Money Côte d'Ivoire</option>
-                  <option value="WV">Wave</option>
-                  <option value="BANK">Virement Bancaire (SGB)</option>
-                </select>
+              <div className="bg-[#f8f9ff] rounded-xl p-4 border border-[#dec1af]/20">
+                <p className="font-sans font-bold text-[13px] text-[#0b1c30]">
+                  Total estimé :{' '}
+                  <span className="text-[#ff8200]">
+                    {((parseFloat(opUnitPrice) || 0) * (parseFloat(opQty) || 0)).toLocaleString('fr-FR')} FCFA
+                  </span>
+                </p>
               </div>
-
-              <div className="pt-4 border-t border-[#dec1af]/20 flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowNewOpModal(false)}
-                  className="px-4 py-2 text-[#574235] hover:bg-gray-100 rounded-lg font-semibold text-[13px]"
-                >
+              <div className="pt-2 flex justify-end gap-3">
+                <button type="button" onClick={() => setShowNewOpModal(false)}
+                  className="px-4 py-2 text-[#574235] hover:bg-gray-100 rounded-lg font-semibold text-[13px]">
                   Annuler
                 </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-[#ff8200] text-white rounded-lg font-bold text-[13px] hover:opacity-90 active:scale-95 transition-all shadow-sm shadow-[#ff8200]/20"
-                >
+                <button type="submit"
+                  className="px-6 py-2 bg-[#ff8200] text-white rounded-lg font-bold text-[13px] hover:opacity-90 active:scale-95 transition-all shadow-sm shadow-[#ff8200]/20">
                   Créer l'Opération
                 </button>
               </div>
@@ -409,8 +621,8 @@ export default function App() {
       )}
 
       {/* Sidebar */}
-      <Sidebar 
-        currentPage={currentPage} 
+      <Sidebar
+        currentPage={currentPage}
         setCurrentPage={(page) => {
           setCurrentPage(page);
           setSelectedTransaction(null);
@@ -419,12 +631,12 @@ export default function App() {
         adminProfile={{
           name: 'M. Cissé',
           role: 'Admin Level 4',
-          avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80'
+          avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
         }}
       />
 
       {/* Header Bar */}
-      <Header 
+      <Header
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         placeholderText="Rechercher une transaction, un client..."
@@ -466,6 +678,8 @@ export default function App() {
             <UserManagementView
               users={users}
               onAddUser={handleAddUser}
+              onUpdateKyc={handleUpdateKyc}
+              onToggleSuspend={handleToggleSuspend}
             />
           )}
 

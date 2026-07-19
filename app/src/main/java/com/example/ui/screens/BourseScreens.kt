@@ -287,8 +287,11 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
     }
 
     if (showGoogleChooser) {
+        var isRegisterMode by remember { mutableStateOf(false) }
+        var firstNameInputText by remember { mutableStateOf("") }
         var emailInput by remember { mutableStateOf("") }
         var passwordInput by remember { mutableStateOf("") }
+        var passwordConfirmInput by remember { mutableStateOf("") }
         var passwordVisible by remember { mutableStateOf(false) }
         var isLoading by remember { mutableStateOf(false) }
         var errorMsg by remember { mutableStateOf("") }
@@ -308,9 +311,9 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(28.dp),
+                        .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     // Logo BAOU
                     Box(
@@ -323,20 +326,67 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
                         Text("B", fontSize = 28.sp, fontWeight = FontWeight.Black, color = Color.White)
                     }
 
+                    // Mode Toggle (Connexion / Inscription)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(40.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFFF1F1F1))
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(if (!isRegisterMode) Color(0xFFFF8200) else Color.Transparent)
+                                .clickable { isRegisterMode = false; errorMsg = "" },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                "Connexion",
+                                fontWeight = FontWeight.Bold,
+                                color = if (!isRegisterMode) Color.White else Color(0xFF666666),
+                                fontSize = 14.sp
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(if (isRegisterMode) Color(0xFFFF8200) else Color.Transparent)
+                                .clickable { isRegisterMode = true; errorMsg = "" },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                "Inscription",
+                                fontWeight = FontWeight.Bold,
+                                color = if (isRegisterMode) Color.White else Color(0xFF666666),
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+
                     Text(
-                        text = "Connexion • BAOU Finance",
-                        style = MaterialTheme.typography.titleLarge,
+                        text = if (isRegisterMode) "Créer un compte BAOU" else "Connexion • BAOU Finance",
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF1F1F1F),
                         textAlign = TextAlign.Center
                     )
-                    Text(
-                        text = "Entrez votre email. Un compte sera créé automatiquement si vous êtes nouveau.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF666666),
-                        textAlign = TextAlign.Center,
-                        lineHeight = 16.sp
-                    )
+
+                    if (isRegisterMode) {
+                        OutlinedTextField(
+                            value = firstNameInputText,
+                            onValueChange = { firstNameInputText = it; errorMsg = "" },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text("Prénom") },
+                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = Color(0xFFFF8200)) },
+                            singleLine = true,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                    }
 
                     OutlinedTextField(
                         value = emailInput,
@@ -373,6 +423,23 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
                         shape = RoundedCornerShape(12.dp)
                     )
 
+                    if (isRegisterMode) {
+                        OutlinedTextField(
+                            value = passwordConfirmInput,
+                            onValueChange = { passwordConfirmInput = it; errorMsg = "" },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text("Confirmer le mot de passe") },
+                            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFFFF8200)) },
+                            visualTransformation = if (passwordVisible)
+                                androidx.compose.ui.text.input.VisualTransformation.None
+                            else
+                                androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                            singleLine = true,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                    }
+
                     if (errorMsg.isNotEmpty()) {
                         Row(
                             modifier = Modifier
@@ -402,21 +469,43 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
                                 errorMsg = "Le mot de passe doit faire au moins 6 caractères."
                                 return@Button
                             }
-                            isLoading = true
-                            viewModel.showGoogleAccountChooser.value = false
-                            viewModel.performLogin(emailInput.trim(), passwordInput) { success ->
-                                isLoading = false
-                                if (success) {
-                                    viewModel.syncWithBackend()
-                                    val profile = viewModel.userProfile.value
-                                    if (profile != null && profile.kycStep >= 5) {
-                                        viewModel.navigateTo(Screen.DASHBOARD)
-                                    } else {
+
+                            if (isRegisterMode) {
+                                if (firstNameInputText.isBlank()) {
+                                    errorMsg = "Veuillez entrer votre prénom."
+                                    return@Button
+                                }
+                                if (passwordInput != passwordConfirmInput) {
+                                    errorMsg = "Les deux mots de passe ne correspondent pas."
+                                    return@Button
+                                }
+                                isLoading = true
+                                viewModel.performRegister(emailInput.trim(), passwordInput, firstNameInputText) { err ->
+                                    isLoading = false
+                                    if (err == null) {
+                                        viewModel.showGoogleAccountChooser.value = false
+                                        viewModel.syncWithBackend()
                                         viewModel.navigateTo(Screen.ONBOARDING)
+                                    } else {
+                                        errorMsg = err
                                     }
-                                } else {
-                                    viewModel.showGoogleAccountChooser.value = true
-                                    errorMsg = "Connexion échouée. Vérifiez vos identifiants."
+                                }
+                            } else {
+                                isLoading = true
+                                viewModel.performLogin(emailInput.trim(), passwordInput) { success ->
+                                    isLoading = false
+                                    if (success) {
+                                        viewModel.showGoogleAccountChooser.value = false
+                                        viewModel.syncWithBackend()
+                                        val profile = viewModel.userProfile.value
+                                        if (profile != null && profile.kycStep >= 5) {
+                                            viewModel.navigateTo(Screen.DASHBOARD)
+                                        } else {
+                                            viewModel.navigateTo(Screen.ONBOARDING)
+                                        }
+                                    } else {
+                                        errorMsg = "Connexion échouée. Vérifiez vos identifiants."
+                                    }
                                 }
                             }
                         },
@@ -430,18 +519,9 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
                         if (isLoading) {
                             CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
                         } else {
-                            Text("Connexion • S'inscrire", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                            Text(if (isRegisterMode) "S'inscrire" else "Se connecter", fontWeight = FontWeight.Bold, fontSize = 15.sp)
                         }
                     }
-
-                    Text(
-                        text = "Pas encore de compte ? Entrez votre email et un mot de passe pour créer votre compte automatiquement.",
-                        style = MaterialTheme.typography.bodySmall,
-                        fontSize = 11.sp,
-                        color = Color(0xFF999999),
-                        textAlign = TextAlign.Center,
-                        lineHeight = 15.sp
-                    )
                 }
             }
         }
@@ -796,6 +876,8 @@ fun OnboardingScreen(viewModel: BourseViewModel) {
                         }
                     }
                     2 -> {
+                        val whatsapp by viewModel.whatsappInput.collectAsStateWithLifecycle()
+
                         Text(
                             text = "Vérification d'identité",
                             style = MaterialTheme.typography.headlineSmall,
@@ -805,6 +887,19 @@ fun OnboardingScreen(viewModel: BourseViewModel) {
                             text = "Sécurisez votre compte en vérifiant votre identité grâce à notre système conforme AMF.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        // WhatsApp Input
+                        OutlinedTextField(
+                            value = whatsapp,
+                            onValueChange = { viewModel.whatsappInput.value = it },
+                            label = { Text("Numéro WhatsApp") },
+                            placeholder = { Text("ex: +225 0707070707") },
+                            leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = OrangeBrand) },
+                            modifier = Modifier.fillMaxWidth().testTag("whatsapp_input"),
+                            singleLine = true,
+                            shape = RoundedCornerShape(10.dp),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                         )
 
                         // Identity Scan Item
@@ -891,6 +986,7 @@ fun OnboardingScreen(viewModel: BourseViewModel) {
                                     .weight(2f)
                                     .height(50.dp)
                                     .testTag("onboarding_next_2"),
+                                enabled = whatsapp.isNotBlank(),
                                 colors = ButtonDefaults.buttonColors(containerColor = OrangeBrand)
                             ) {
                                 Text("Valider l'ID", fontWeight = FontWeight.Bold)
@@ -1293,6 +1389,32 @@ fun DashboardScreen(viewModel: BourseViewModel) {
             Text("BOURSE HORIZON", color = ForestGreen, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
         }
 
+        // Lock Banner if not verified
+        val isVerified = userProfile != null && userProfile!!.kycStep >= 5
+        if (!isVerified) {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.08f)),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Accès Limité - Validation Requise", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error, fontSize = 14.sp)
+                        Text(
+                            text = "Votre inscription est en attente de validation par l'administration. Les dépôts et achats d'actions sont verrouillés pour l'instant.",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+
         // Main Portfolio Bento Card
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -1310,7 +1432,7 @@ fun DashboardScreen(viewModel: BourseViewModel) {
                     letterSpacing = 1.sp
                 )
 
-                val netValue = (userProfile?.portfolioValue ?: 14520000.0) + (userProfile?.cashBalance ?: 125000.0)
+                val netValue = (userProfile?.portfolioValue ?: 0.0) + (userProfile?.cashBalance ?: 0.0)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -1344,7 +1466,8 @@ fun DashboardScreen(viewModel: BourseViewModel) {
 
                     Button(
                         onClick = { viewModel.navigateTo(Screen.MARKET) },
-                        colors = ButtonDefaults.buttonColors(containerColor = GoldPremium),
+                        colors = ButtonDefaults.buttonColors(containerColor = if (isVerified) GoldPremium else Color.Gray),
+                        enabled = isVerified,
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.testTag("place_order_button")
                     ) {
@@ -1494,50 +1617,6 @@ fun DashboardScreen(viewModel: BourseViewModel) {
                 )
             }
         }
-
-        // Market Watch mini list
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("MARCHÉ BRVM", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-
-            viewModel.watchlist.take(3).forEach { stock ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { viewModel.selectStockAndNavigate(stock.ticker) },
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = BorderStroke(1.dp, GrayBorder)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(stock.ticker, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)
-                            }
-                            Column {
-                                Text(stock.companyName, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                                Text(stock.sector, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                        }
-
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(stock.price.formatFcfa(), fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                            val color = if (stock.isGaining) ForestGreen else RedLoss
-                            val prefix = if (stock.isGaining) "+" else ""
-                            Text("$prefix${stock.changePercent}%", color = color, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -1651,6 +1730,53 @@ fun MarketScreen(viewModel: BourseViewModel) {
                                 }
                                 HorizontalDivider(color = GrayBorder)
                             }
+                        }
+                    }
+                }
+            }
+        }
+
+        // MARCHÉ BRVM List
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("MARCHÉ BRVM", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+
+            viewModel.watchlist.forEach { item ->
+                val isSelected = item.ticker == stock.ticker
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { viewModel.selectStockAndNavigate(item.ticker) },
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isSelected) OrangeBrand.copy(alpha = 0.08f) else MaterialTheme.colorScheme.surface
+                    ),
+                    border = BorderStroke(1.dp, if (isSelected) OrangeBrand else GrayBorder)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(if (isSelected) OrangeBrand.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(item.ticker, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium, color = if (isSelected) OrangeBrand else DarkOnBackground)
+                            }
+                            Column {
+                                Text(item.companyName, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                Text(item.sector, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(item.price.formatFcfa(), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            val color = if (item.isGaining) ForestGreen else RedLoss
+                            val prefix = if (item.isGaining) "+" else ""
+                            Text("$prefix${item.changePercent}%", color = color, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                         }
                     }
                 }
@@ -1835,18 +1961,24 @@ fun MarketScreen(viewModel: BourseViewModel) {
                 )
             }
 
+            val isVerified = userProfile != null && userProfile!!.kycStep >= 5
             Button(
                 onClick = { viewModel.executeOrder() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(54.dp)
                     .testTag("confirm_order_button"),
-                colors = ButtonDefaults.buttonColors(containerColor = ForestGreen),
+                colors = ButtonDefaults.buttonColors(containerColor = if (isVerified) ForestGreen else Color.Gray),
+                enabled = isVerified,
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(Icons.Default.CheckCircle, contentDescription = null)
                 Spacer(modifier = Modifier.width(10.dp))
-                Text("Confirmer l'achat", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    text = if (isVerified) "Confirmer l'achat" else "Achat Verrouillé (Non Validé)",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
@@ -1858,6 +1990,9 @@ fun PortfolioScreen(viewModel: BourseViewModel) {
     val userProfile by viewModel.userProfile.collectAsStateWithLifecycle()
     val holdings by viewModel.holdings.collectAsStateWithLifecycle()
     val transactions by viewModel.transactions.collectAsStateWithLifecycle()
+
+    var activeSellHolding by remember { mutableStateOf<HoldingsEntity?>(null) }
+    var sellQtyInput by remember { mutableStateOf("") }
 
     val context = LocalContext.current
 
@@ -2077,7 +2212,8 @@ fun PortfolioScreen(viewModel: BourseViewModel) {
                                 }
                                 Button(
                                     onClick = {
-                                        viewModel.executeSale(holding.ticker, holding.sharesCount, holding.currentPrice)
+                                        sellQtyInput = ""
+                                        activeSellHolding = holding
                                     },
                                     modifier = Modifier
                                         .weight(1f)
@@ -2085,7 +2221,7 @@ fun PortfolioScreen(viewModel: BourseViewModel) {
                                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.error),
                                     shape = RoundedCornerShape(8.dp)
                                 ) {
-                                    Text("Tout Vendre", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    Text("Vendre", fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
@@ -2114,6 +2250,104 @@ fun PortfolioScreen(viewModel: BourseViewModel) {
             }
         }
     }
+
+    if (activeSellHolding != null) {
+        val holding = activeSellHolding!!
+        val maxShares = holding.sharesCount
+        var errorMsg by remember { mutableStateOf("") }
+        val qtyToSell = sellQtyInput.toIntOrNull() ?: 0
+        val estRevenue = qtyToSell * holding.currentPrice
+
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { activeSellHolding = null }
+        ) {
+            androidx.compose.material3.Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(horizontal = 8.dp),
+                shape = RoundedCornerShape(24.dp),
+                color = Color.White
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = "Vente d'actions",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1F1F1F)
+                    )
+                    Text(
+                        text = "Combien d'actions de ${holding.companyName} (${holding.ticker}) voulez-vous vendre ? (Max : $maxShares)",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF666666),
+                        textAlign = TextAlign.Center
+                    )
+
+                    OutlinedTextField(
+                        value = sellQtyInput,
+                        onValueChange = {
+                            sellQtyInput = it
+                            errorMsg = ""
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Quantité à vendre") },
+                        placeholder = { Text("ex: 5") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    if (qtyToSell > 0) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = ForestGreen.copy(alpha = 0.08f))
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("Revenu estimé de la vente", fontSize = 11.sp, color = ForestGreen, fontWeight = FontWeight.Bold)
+                                Text(estRevenue.formatFcfa(), fontWeight = FontWeight.ExtraBold, fontSize = 20.sp, color = ForestGreen)
+                            }
+                        }
+                    }
+
+                    if (errorMsg.isNotEmpty()) {
+                        Text(errorMsg, color = Color.Red, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = { activeSellHolding = null },
+                            modifier = Modifier.weight(1f).height(48.dp),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text("Annuler")
+                        }
+                        Button(
+                            onClick = {
+                                if (qtyToSell <= 0 || qtyToSell > maxShares) {
+                                    errorMsg = "Quantité invalide (doit être entre 1 et $maxShares)"
+                                    return@Button
+                                }
+                                viewModel.executeSale(holding.ticker, qtyToSell, holding.currentPrice)
+                                activeSellHolding = null
+                            },
+                            modifier = Modifier.weight(1f).height(48.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F)),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text("Vendre", fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 // 7. DEPOSIT / RECHARGE FUNDS SCREEN
@@ -2121,6 +2355,7 @@ fun PortfolioScreen(viewModel: BourseViewModel) {
 fun DepositScreen(viewModel: BourseViewModel) {
     val amountInput by viewModel.depositAmountInput.collectAsStateWithLifecycle()
     val paymentMethod by viewModel.depositPaymentMethod.collectAsStateWithLifecycle()
+    val userProfile by viewModel.userProfile.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
 
@@ -2283,16 +2518,22 @@ fun DepositScreen(viewModel: BourseViewModel) {
             }
         }
 
+        val isVerified = userProfile != null && userProfile!!.kycStep >= 5
         Button(
             onClick = { viewModel.executeDeposit(context) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp)
                 .testTag("confirm_deposit_button"),
-            colors = ButtonDefaults.buttonColors(containerColor = OrangeBrand),
+            colors = ButtonDefaults.buttonColors(containerColor = if (isVerified) OrangeBrand else Color.Gray),
+            enabled = isVerified && amtDouble >= 1000.0,
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Confirmer le dépôt", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                text = if (isVerified) "Confirmer le dépôt" else "Dépôt Verrouillé (Non Validé)",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
@@ -2704,6 +2945,7 @@ fun HelpScreen(viewModel: BourseViewModel) {
 fun ProfileScreen(viewModel: BourseViewModel) {
     val userProfile by viewModel.userProfile.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    var activeDialog by remember { mutableStateOf<String?>(null) }
 
     val nameText = if (userProfile != null && userProfile!!.firstName.isNotBlank()) {
         "${userProfile!!.firstName} ${userProfile!!.lastName}"
@@ -2818,17 +3060,16 @@ fun ProfileScreen(viewModel: BourseViewModel) {
                 val menuItems = listOf(
                     Pair(Icons.Default.Person, "Informations Personnelles"),
                     Pair(Icons.Default.Shield, "Sécurité & Double Facteur (2FA)"),
-                    Pair(Icons.Default.AccountBalance, "Coordonnées Bancaires"),
                     Pair(Icons.Default.Notifications, "Préférences de Notifications"),
                     Pair(Icons.Default.Description, "Documents & Contrats"),
-                    Pair(Icons.Default.GroupAdd, "Parrainer un ami")
+                    Pair(Icons.Default.Chat, "Messagerie Support")
                 )
 
                 menuItems.forEach { item ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { }
+                            .clickable { activeDialog = item.second }
                             .padding(16.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
@@ -2883,5 +3124,231 @@ fun ProfileScreen(viewModel: BourseViewModel) {
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
         )
+    }
+
+    // Interactive Dialogs
+    when (activeDialog) {
+        "Informations Personnelles" -> {
+            androidx.compose.ui.window.Dialog(onDismissRequest = { activeDialog = null }) {
+                Surface(shape = RoundedCornerShape(20.dp), color = Color.White, modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                    Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Text("Informations Personnelles", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("Prénom", fontSize = 11.sp, color = Color.Gray)
+                            Text(userProfile?.firstName ?: "-", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                            HorizontalDivider()
+                            
+                            Text("Nom de famille", fontSize = 11.sp, color = Color.Gray)
+                            Text(userProfile?.lastName ?: "-", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                            HorizontalDivider()
+                            
+                            Text("Adresse e-mail", fontSize = 11.sp, color = Color.Gray)
+                            Text(viewModel.firstNameInput.value.split("@").firstOrNull() ?: "investisseur@email.ci", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                            HorizontalDivider()
+                            
+                            Text("Numéro WhatsApp", fontSize = 11.sp, color = Color.Gray)
+                            Text(userProfile?.whatsapp ?: "-", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                        }
+
+                        Button(
+                            onClick = { activeDialog = null },
+                            colors = ButtonDefaults.buttonColors(containerColor = OrangeBrand),
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text("Fermer", fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+
+        "Sécurité & Double Facteur (2FA)" -> {
+            val is2fa by viewModel.is2faEnabled.collectAsStateWithLifecycle()
+            val isFingerprint by viewModel.isFingerprintEnabled.collectAsStateWithLifecycle()
+
+            androidx.compose.ui.window.Dialog(onDismissRequest = { activeDialog = null }) {
+                Surface(shape = RoundedCornerShape(20.dp), color = Color.White, modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                    Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                        Text("Sécurité & 2FA", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Authentification 2FA", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text("Ajoute un code OTP temporaire à la connexion", fontSize = 11.sp, color = Color.Gray)
+                            }
+                            Switch(checked = is2fa, onCheckedChange = { viewModel.is2faEnabled.value = it })
+                        }
+
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Empreinte Digitale / Biométrie", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text("Déverrouillage rapide de l'application", fontSize = 11.sp, color = Color.Gray)
+                            }
+                            Switch(checked = isFingerprint, onCheckedChange = { viewModel.isFingerprintEnabled.value = it })
+                        }
+
+                        Button(
+                            onClick = { activeDialog = null },
+                            colors = ButtonDefaults.buttonColors(containerColor = OrangeBrand),
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text("Sauvegarder", fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+
+        "Préférences de Notifications" -> {
+            var pushEnabled by remember { mutableStateOf(true) }
+            var emailEnabled by remember { mutableStateOf(true) }
+            var smsEnabled by remember { mutableStateOf(false) }
+
+            androidx.compose.ui.window.Dialog(onDismissRequest = { activeDialog = null }) {
+                Surface(shape = RoundedCornerShape(20.dp), color = Color.White, modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                    Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                        Text("Préférences de Notifications", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text("Notifications Push", fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                            Switch(checked = pushEnabled, onCheckedChange = { pushEnabled = it })
+                        }
+
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text("Alertes E-mail", fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                            Switch(checked = emailEnabled, onCheckedChange = { emailEnabled = it })
+                        }
+
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text("Alertes SMS", fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                            Switch(checked = smsEnabled, onCheckedChange = { smsEnabled = it })
+                        }
+
+                        Button(
+                            onClick = { activeDialog = null },
+                            colors = ButtonDefaults.buttonColors(containerColor = OrangeBrand),
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text("Fermer", fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+
+        "Documents & Contrats" -> {
+            androidx.compose.ui.window.Dialog(onDismissRequest = { activeDialog = null }) {
+                Surface(shape = RoundedCornerShape(20.dp), color = Color.White, modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                    Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Text("Documents & Contrats", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("Téléchargez les documents officiels relatifs à vos activités d'investissement.", fontSize = 12.sp, color = Color.Gray)
+
+                        val docs = listOf(
+                            "Contrat d'Ouverture.pdf",
+                            "Fiche d'Inscription KYC.pdf",
+                            "Reglement General BRVM.pdf"
+                        )
+
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            docs.forEach { doc ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(Color(0xFFF9F9F9)).padding(12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(Icons.Default.Description, contentDescription = null, tint = OrangeBrand, modifier = Modifier.size(20.dp))
+                                        Text(doc, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                                    }
+                                    IconButton(onClick = {
+                                        android.widget.Toast.makeText(context, "Téléchargement de $doc commencé...", android.widget.Toast.LENGTH_SHORT).show()
+                                    }, modifier = Modifier.size(24.dp)) {
+                                        Icon(Icons.Default.Download, contentDescription = "Télécharger", tint = ForestGreen, modifier = Modifier.size(20.dp))
+                                    }
+                                }
+                            }
+                        }
+
+                        Button(
+                            onClick = { activeDialog = null },
+                            colors = ButtonDefaults.buttonColors(containerColor = OrangeBrand),
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text("Fermer", fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+
+        "Messagerie Support" -> {
+            val messageText by viewModel.supportMessageInput.collectAsStateWithLifecycle()
+            val subjectText by viewModel.supportSubjectInput.collectAsStateWithLifecycle()
+            var isSending by remember { mutableStateOf(false) }
+
+            androidx.compose.ui.window.Dialog(onDismissRequest = { activeDialog = null }) {
+                Surface(shape = RoundedCornerShape(20.dp), color = Color.White, modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                    Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Text("Messagerie Support", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("Posez vos questions directement aux administrateurs de la plate-forme.", fontSize = 12.sp, color = Color.Gray)
+
+                        OutlinedTextField(
+                            value = subjectText,
+                            onValueChange = { viewModel.supportSubjectInput.value = it },
+                            label = { Text("Sujet") },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            shape = RoundedCornerShape(10.dp)
+                        )
+
+                        OutlinedTextField(
+                            value = messageText,
+                            onValueChange = { viewModel.supportMessageInput.value = it },
+                            label = { Text("Votre message") },
+                            modifier = Modifier.fillMaxWidth().height(120.dp),
+                            maxLines = 5,
+                            shape = RoundedCornerShape(10.dp)
+                        )
+
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            OutlinedButton(
+                                onClick = { activeDialog = null },
+                                modifier = Modifier.weight(1f).height(48.dp),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Text("Fermer")
+                            }
+                            Button(
+                                onClick = {
+                                    if (messageText.isBlank()) return@Button
+                                    isSending = true
+                                    viewModel.sendSupportMessage { success ->
+                                        isSending = false
+                                        if (success) {
+                                            activeDialog = null
+                                        }
+                                    }
+                                },
+                                enabled = messageText.isNotBlank() && !isSending,
+                                modifier = Modifier.weight(1f).height(48.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = ForestGreen),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                if (isSending) {
+                                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                                } else {
+                                    Text("Envoyer", fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

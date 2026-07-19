@@ -103,8 +103,7 @@ router.post('/', requireAuth, (req, res) => {
     });
   }
 
-  const isWave = paymentMethod === 'Wave CI';
-  const status = isWave ? 'validated' : 'pending';
+  const status = 'pending';
 
   const newTx = {
     id: `SN-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -124,14 +123,9 @@ router.post('/', requireAuth, (req, res) => {
     paymentMethod: paymentMethod || 'Non spécifié',
     rejectionReason: null,
     submittedAt: new Date().toISOString(),
-    processedAt: isWave ? new Date().toISOString() : null,
-    processedBy: isWave ? 'SYSTEM' : null,
+    processedAt: null,
+    processedBy: null,
   };
-
-  if (isWave) {
-    user.balance += total;
-    saveUserToSupabase(user);
-  }
 
   transactions.unshift(newTx);
   saveTransactionToSupabase(newTx);

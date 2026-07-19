@@ -52,6 +52,19 @@ stocks = stocks.map(stock => {
 // ─── TRANSACTIONS ──────────────────────────────────────────
 let transactions = [];
 
+// ─── TICKETS DE SUPPORT ────────────────────────────────────
+let tickets = [
+  {
+    id: 'TKT-1002',
+    clientName: 'Mamadou Konaté',
+    clientId: 'mamadou.konate@email.ci',
+    subject: 'Assistance Inscription',
+    message: 'Bonjour, j\'ai besoin d\'aide pour valider mon contrat.',
+    status: 'OUVERT',
+    dateString: 'Aujourd\'hui, 10:15'
+  }
+];
+
 // ─── PORTEFEUILLES ─────────────────────────────────────────
 const portfolios = {};
 
@@ -259,6 +272,7 @@ module.exports = {
   users, 
   stocks, 
   transactions, 
+  tickets,
   portfolios, 
   adminStats,
   saveUserToSupabase,
