@@ -20,18 +20,16 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-      # Si gradlew est absent de la racine, nous pouvons executer Gradle localement ou installer le wrapper
-      continue-on-error: true
-
-    - name: Setup Gradle wrapper if missing
+    - name: Ensure Gradle wrapper exists and uses version 9.3.1
       run: |
         if [ ! -f "gradlew" ]; then
-          gradle wrapper --gradle-version 8.7
-          chmod +x gradlew
+          echo "Téléchargement de Gradle 9.3.1..."
+          curl -sSLo gradle-9.3.1-bin.zip https://services.gradle.org/distributions/gradle-9.3.1-bin.zip
+          unzip -q gradle-9.3.1-bin.zip
+          ./gradle-9.3.1/bin/gradle wrapper --gradle-version 9.3.1
+          rm -rf gradle-9.3.1 gradle-9.3.1-bin.zip
         fi
-      continue-on-error: true
+        chmod +x gradlew
 
     - name: Build Android App (Debug APK)
       run: ./gradlew assembleDebug --no-daemon --no-configuration-cache
