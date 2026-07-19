@@ -317,7 +317,16 @@ class BourseRepository(private val bourseDao: BourseDao) {
         }
 
         val reference = "SN-" + (1000..9999).random()
-        bourseDao.insertTransaction(TransactionEntity("BUY", "Achat $companyName", "Aujourd'hui", reference, "TERMINÉ", -(sharesQty * price), sharesQty, ticker))
+        bourseDao.insertTransaction(TransactionEntity(
+            type = "BUY",
+            title = "Achat $companyName",
+            date = "Aujourd'hui",
+            reference = reference,
+            status = "TERMINÉ",
+            amount = -(sharesQty * price),
+            sharesQty = sharesQty,
+            stockTicker = ticker
+        ))
         return "SUCCESS"
     }
 
@@ -379,7 +388,16 @@ class BourseRepository(private val bourseDao: BourseDao) {
         }
 
         val reference = "VS-" + (1000..9999).random()
-        bourseDao.insertTransaction(TransactionEntity("SELL", "Vente ${existingHolding.companyName}", "Aujourd'hui", reference, "TERMINÉ", sharesQty * price, sharesQty, ticker))
+        bourseDao.insertTransaction(TransactionEntity(
+            type = "SELL",
+            title = "Vente ${existingHolding.companyName}",
+            date = "Aujourd'hui",
+            reference = reference,
+            status = "TERMINÉ",
+            amount = sharesQty * price,
+            sharesQty = sharesQty,
+            stockTicker = ticker
+        ))
         return "SUCCESS"
     }
 }
