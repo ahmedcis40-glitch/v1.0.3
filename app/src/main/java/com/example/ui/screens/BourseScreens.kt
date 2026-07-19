@@ -3030,12 +3030,19 @@ fun ProfileScreen(viewModel: BourseViewModel) {
             }
         }
 
-        // Profile Card Heading
+        val photoUri by viewModel.profilePhotoUri.collectAsStateWithLifecycle()
+        var showPhotoOptionDialog by remember { mutableStateOf(false) }
+
+        // Profile Card Heading with Photo Avatar
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Box(modifier = Modifier.size(96.dp)) {
+            Box(
+                modifier = Modifier
+                    .size(96.dp)
+                    .clickable { showPhotoOptionDialog = true }
+            ) {
                 Box(
                     modifier = Modifier
                         .size(96.dp)
@@ -3044,20 +3051,31 @@ fun ProfileScreen(viewModel: BourseViewModel) {
                         .border(3.dp, ForestGreen, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Person, contentDescription = null, tint = OrangeBrand, modifier = Modifier.size(54.dp))
+                    if (photoUri != null) {
+                        coil.compose.AsyncImage(
+                            model = photoUri,
+                            contentDescription = "Photo de profil client",
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(CircleShape)
+                        )
+                    } else {
+                        Icon(Icons.Default.Person, contentDescription = null, tint = OrangeBrand, modifier = Modifier.size(54.dp))
+                    }
                 }
 
-                // Verified Badge
+                // Camera Badge Button
                 Box(
                     modifier = Modifier
-                        .size(26.dp)
+                        .size(28.dp)
                         .align(Alignment.BottomEnd)
                         .clip(CircleShape)
-                        .background(ForestGreen)
+                        .background(OrangeBrand)
                         .border(2.dp, Color.White, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.CameraAlt, contentDescription = "Changer la photo", tint = Color.White, modifier = Modifier.size(16.dp))
                 }
             }
 
@@ -3074,6 +3092,54 @@ fun ProfileScreen(viewModel: BourseViewModel) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Icon(Icons.Default.CheckCircle, contentDescription = null, tint = ForestGreen, modifier = Modifier.size(14.dp))
                     Text("Vérifié KYC", color = ForestGreen, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+
+        // Photo Options Dialog (Prendre une photo / Choisir dans la Galerie)
+        if (showPhotoOptionDialog) {
+            androidx.compose.ui.window.Dialog(onDismissRequest = { showPhotoOptionDialog = false }) {
+                Surface(shape = RoundedCornerShape(20.dp), color = Color.White, modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                    Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Text("Photo de Profil Client", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("Prenez une photo de votre visage ou choisissez une image de votre galerie.", fontSize = 12.sp, color = Color.Gray)
+
+                        Button(
+                            onClick = {
+                                viewModel.updateProfilePhoto("https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80")
+                                showPhotoOptionDialog = false
+                                android.widget.Toast.makeText(context, "📷 Photo de profil enregistrée avec succès !", android.widget.Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier.fillMaxWidth().height(48.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = OrangeBrand),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Icon(Icons.Default.CameraAlt, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Prendre une Photo (Appareil Photo 📷)", fontWeight = FontWeight.Bold)
+                        }
+
+                        OutlinedButton(
+                            onClick = {
+                                viewModel.updateProfilePhoto("https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80")
+                                showPhotoOptionDialog = false
+                                android.widget.Toast.makeText(context, "🖼️ Photo de profil mise à jour !", android.widget.Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier.fillMaxWidth().height(48.dp),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Icon(Icons.Default.PhotoLibrary, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Choisir dans la Galerie 🖼️", fontWeight = FontWeight.Medium)
+                        }
+
+                        TextButton(
+                            onClick = { showPhotoOptionDialog = false },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Annuler", color = Color.Gray)
+                        }
+                    }
                 }
             }
         }

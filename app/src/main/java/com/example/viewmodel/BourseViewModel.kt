@@ -53,6 +53,13 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
     // Screen navigation stack to support going back (simplifies single activity routing)
     private val screenHistory = mutableListOf<Screen>()
 
+    // Profile Photo State
+    val profilePhotoUri = MutableStateFlow<String?>(null)
+
+    fun updateProfilePhoto(uriString: String) {
+        profilePhotoUri.value = uriString
+    }
+
     // Selected stock for Market Detail View
     private val _selectedStock = MutableStateFlow<StockWatchItem?>(null)
     val selectedStock: StateFlow<StockWatchItem?> = _selectedStock.asStateFlow()
