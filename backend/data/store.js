@@ -57,11 +57,11 @@ const portfolios = {};
 
 // ─── KPI ADMIN ─────────────────────────────────────────────
 const adminStats = {
-  totalUsers: 8432,
-  kycVerified: 7814,
-  kycPending: 42,
-  kycUrgent: 5,
-  suspended: 12,
+  totalUsers: 0,
+  kycVerified: 0,
+  kycPending: 0,
+  kycUrgent: 0,
+  suspended: 0,
   marketStatus: 'OPEN',
   marketCloseIn: '3h 15m',
   brvm: {

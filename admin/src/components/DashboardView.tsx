@@ -49,8 +49,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     .filter(tx => tx.status === 'APPROVED')
     .reduce((sum, tx) => sum + tx.totalAmount, 0);
   
-  const totalValueFCFA = 458200000 + approvedTotalValue; // Base 458.2M + dynamic additions
-  const totalValueFormatted = (totalValueFCFA / 1000000).toFixed(1) + 'M';
+  const totalValueFCFA = approvedTotalValue;
+  const totalValueFormatted = totalValueFCFA === 0 ? '0' : (totalValueFCFA / 1000000).toFixed(1) + 'M';
 
   // Format currency helpers
   const formatAmount = (num: number) => {
@@ -146,10 +146,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {pendingCount}
             </h3>
             <div className="flex items-center gap-2 mt-1.5">
-              <span className="text-[#006d31] font-sans font-bold text-[12px] flex items-center gap-0.5">
-                <TrendingUp className="w-3.5 h-3.5" /> +12%
-              </span>
-              <span className="text-[#574235]/65 font-sans text-[11px]">vs last month</span>
+              <span className="text-[#574235]/65 font-sans text-[11px]">commandes en attente</span>
             </div>
           </div>
         </div>
@@ -169,10 +166,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               {totalValueFormatted} <span className="text-[14px] font-bold text-[#574235]">FCFA</span>
             </h3>
             <div className="flex items-center gap-2 mt-1.5">
-              <span className="text-[#006d31] font-sans font-bold text-[12px] flex items-center gap-0.5">
-                <TrendingUp className="w-3.5 h-3.5" /> +5.4%
-              </span>
-              <span className="text-[#574235]/65 font-sans text-[11px]">vs last month</span>
+              <span className="text-[#574235]/65 font-sans text-[11px]">valeur totale validée</span>
             </div>
           </div>
         </div>
@@ -189,12 +183,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div className="mt-4">
             <h3 className="font-sans font-black text-[28px] text-[#0b1c30] leading-none">
-              42
+              0
             </h3>
             <div className="flex items-center gap-2 mt-1.5">
-              <span className="px-2 py-0.5 bg-[#ffdad6] text-[#ba1a1a] rounded-full font-sans font-semibold text-[11px]">
-                Urgent: 5
-              </span>
+              <span className="text-[#574235]/65 font-sans text-[11px]">aucune demande en attente</span>
             </div>
           </div>
         </div>
