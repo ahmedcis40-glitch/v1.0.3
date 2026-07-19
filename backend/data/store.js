@@ -4,6 +4,7 @@
 // ============================================================
 
 const { v4: uuidv4 } = require('uuid');
+const { getTickerData } = require('../utils/brvmDataReader');
 
 // ─── UTILISATEURS ─────────────────────────────────────────
 const users = [
@@ -127,6 +128,22 @@ let stocks = [
   { ticker: 'CABC', company: 'SGB CI', sector: 'Banque', price: 6200, prevClose: 6150, change: 0.81, volume: 18700, marketCap: '88 Mrd', high52: 7200, low52: 5400, pe: 9.1, dividend: 220, yield: 3.55 },
   { ticker: 'BICI', company: 'BICICI', sector: 'Banque', price: 7800, prevClose: 7720, change: 1.04, volume: 45300, marketCap: '165 Mrd', high52: 8900, low52: 6800, pe: 13.2, dividend: 310, yield: 3.97 },
 ];
+
+// Charger dynamiquement les données réelles de la BRVM si disponibles en local
+stocks = stocks.map(stock => {
+  const realData = getTickerData(stock.ticker);
+  if (realData) {
+    console.log(`[BRVM Data] Chargé ${stock.ticker}: ${realData.price} FCFA (${realData.change > 0 ? '+' : ''}${realData.change}%)`);
+    return {
+      ...stock,
+      price: realData.price,
+      prevClose: realData.prevClose,
+      change: realData.change,
+      volume: realData.volume
+    };
+  }
+  return stock;
+});
 
 // ─── TRANSACTIONS ──────────────────────────────────────────
 let transactions = [
