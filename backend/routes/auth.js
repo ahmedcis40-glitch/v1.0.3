@@ -13,9 +13,30 @@ router.post('/login', (req, res) => {
     return res.status(400).json({ error: 'Email et mot de passe requis.' });
   }
 
-  const user = users.find(u => u.email === email && u.password === password);
+  let user = users.find(u => u.email === email);
 
   if (!user) {
+    // Inscription automatique (Provisioning JIT) pour les nouveaux comptes
+    const namePart = email.split('@')[0].replace(/[^a-zA-Z]/g, ' ');
+    const formattedName = namePart.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    
+    user = {
+      id: `EB-CI-${Math.floor(10000 + Math.random() * 90000)}`,
+      name: formattedName || 'Nouvel Utilisateur',
+      email: email,
+      password: password,
+      role: 'client',
+      type: 'Standard',
+      kyc: 'pending',
+      balance: 125000.0,
+      joinedAt: new Date().toISOString().split('T')[0],
+      avatar: email.substring(0, 2).toUpperCase()
+    };
+    
+    users.push(user);
+    const { saveUserToSupabase } = require('../data/store');
+    saveUserToSupabase(user);
+  } else if (user.password !== password) {
     return res.status(401).json({ error: 'Identifiants incorrects.' });
   }
 
