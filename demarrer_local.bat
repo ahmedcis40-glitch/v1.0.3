@@ -16,14 +16,14 @@ echo [Optionnel] Tunnel de connexion mobile public
 echo Si vous testez l'app sur un VRAI telephone,
 echo vous avez besoin d'exposer votre serveur local.
 echo ==========================================
-set /p choice="Lancer un tunnel de connexion public (localtunnel) ? (O/N) : "
+set /p choice="Lancer un tunnel de connexion public avec NGROK ? (O/N) : "
 
 if /i "%choice%"=="O" (
     echo.
-    echo Lancement du tunnel sur le port 3001...
-    start cmd /k "npx localtunnel --port 3001"
+    echo Lancement de ngrok sur le port 3001...
+    start cmd /k "ngrok http 3001"
     echo.
-    echo Copiez l'adresse generee (ex: https://xxxx.localtunnel.me) 
+    echo Copiez l'adresse generee par ngrok (ex: https://xxxx.ngrok-free.app) 
     echo et collez-la dans les parametres (engrenage) de l'application mobile !
 )
 
