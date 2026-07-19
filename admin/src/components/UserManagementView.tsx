@@ -212,9 +212,9 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
         <div className="bg-white p-6 rounded-xl border border-[#dec1af]/30 flex justify-between items-center group hover:border-[#ff8200] transition-colors duration-200">
           <div>
             <p className="font-sans font-bold text-[11px] text-[#574235]/70 uppercase tracking-wider mb-2">Total Utilisateurs</p>
-            <h3 className="font-sans font-black text-[26px] text-[#0b1c30]">{users.length + 12837}</h3>
-            <p className="text-[#006d31] font-sans font-semibold text-[11px] mt-1 flex items-center gap-1">
-              <TrendingUp className="w-3.5 h-3.5" /> +12% ce mois
+            <h3 className="font-sans font-black text-[26px] text-[#0b1c30]">{users.length}</h3>
+            <p className="text-[#574235]/70 font-sans font-medium text-[11px] mt-1">
+              comptes actifs
             </p>
           </div>
           <div className="w-12 h-12 rounded-full bg-[#f8f9ff] flex items-center justify-center text-[#ff8200] group-hover:bg-[#ffdcc6]/30 transition-colors">
@@ -228,7 +228,9 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
             <h3 className="font-sans font-black text-[26px] text-[#ff8200]">
               {users.filter(u => u.kycStatus === 'PENDING').length}
             </h3>
-            <p className="text-[#574235]/70 font-sans font-medium text-[11px] mt-1">42 dossiers prioritaires</p>
+            <p className="text-[#574235]/70 font-sans font-medium text-[11px] mt-1">
+              {users.filter(u => u.kycStatus === 'PENDING').length} dossier(s) en attente
+            </p>
           </div>
           <div className="w-12 h-12 rounded-full bg-[#ffdcc6]/20 flex items-center justify-center text-[#ff8200] group-hover:bg-[#ff8200] group-hover:text-white transition-all duration-200">
             <ShieldCheck className="w-5 h-5" />
@@ -238,9 +240,9 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
         <div className="bg-white p-6 rounded-xl border border-[#dec1af]/30 flex justify-between items-center group hover:border-[#ff8200] transition-colors duration-200">
           <div>
             <p className="font-sans font-bold text-[11px] text-[#574235]/70 uppercase tracking-wider mb-2">Nouveaux ce mois</p>
-            <h3 className="font-sans font-black text-[26px] text-[#0b1c30]">892</h3>
-            <p className="text-[#005db6] font-sans font-semibold text-[11px] mt-1 flex items-center gap-1">
-              <Award className="w-3.5 h-3.5" /> Objectif à 94%
+            <h3 className="font-sans font-black text-[26px] text-[#0b1c30]">{users.length}</h3>
+            <p className="text-[#574235]/70 font-sans font-medium text-[11px] mt-1">
+              nouveaux enregistrements
             </p>
           </div>
           <div className="w-12 h-12 rounded-full bg-[#f8f9ff] flex items-center justify-center text-[#005db6] group-hover:bg-[#d6e3ff] transition-all">

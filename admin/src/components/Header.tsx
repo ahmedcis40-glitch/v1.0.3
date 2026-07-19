@@ -10,6 +10,9 @@ interface HeaderProps {
     role: string;
     avatar: string;
   };
+  pendingTransactionsCount?: number;
+  pendingKycCount?: number;
+  openTicketsCount?: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -20,8 +23,14 @@ export const Header: React.FC<HeaderProps> = ({
     name: 'M. Cissé',
     role: 'Admin Level 4',
     avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80'
-  }
+  },
+  pendingTransactionsCount = 0,
+  pendingKycCount = 0,
+  openTicketsCount = 0
 }) => {
+  const [showNotifications, setShowNotifications] = React.useState(false);
+  const totalNotifications = pendingTransactionsCount + pendingKycCount + openTicketsCount;
+
   return (
     <header className="h-16 fixed top-0 right-0 left-[280px] z-40 bg-white border-b border-[#dec1af]/30 flex justify-between items-center px-6">
       {/* Search Input Box */}
@@ -41,10 +50,69 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Action Icons & User Metadata */}
       <div className="flex items-center gap-4">
         {/* Quick action triggers */}
-        <button className="hover:bg-[#eff4ff] rounded-full p-2 text-[#574235]/80 transition-colors relative">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-[#ff8200] rounded-full border-2 border-white animate-pulse"></span>
-        </button>
+        <div className="relative">
+          <button 
+            onClick={() => setShowNotifications(!showNotifications)}
+            className="hover:bg-[#eff4ff] rounded-full p-2 text-[#574235]/80 transition-colors relative"
+          >
+            <Bell className="w-5 h-5" />
+            {totalNotifications > 0 && (
+              <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-[#ff8200] rounded-full border-2 border-white animate-pulse"></span>
+            )}
+          </button>
+
+          {showNotifications && (
+            <div className="absolute right-0 top-12 w-80 bg-white border border-[#dec1af]/30 rounded-2xl shadow-xl p-4 z-50 animate-slide-in">
+              <div className="flex justify-between items-center pb-2 border-b border-[#dec1af]/20">
+                <h4 className="font-bold text-[14px] text-[#0b1c30]">Notifications</h4>
+                <span className="text-[11px] font-bold text-white bg-[#ff8200] px-2 py-0.5 rounded-full">
+                  {totalNotifications}
+                </span>
+              </div>
+              <div className="mt-3 space-y-3 max-h-60 overflow-y-auto">
+                {totalNotifications === 0 ? (
+                  <p className="text-xs text-[#574235]/60 text-center py-4">Aucune nouvelle notification</p>
+                ) : (
+                  <>
+                    {pendingTransactionsCount > 0 && (
+                      <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-[#f8f9ff] transition-colors">
+                        <div className="w-2 h-2 rounded-full bg-[#ff8200] mt-1.5 shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-[13px] font-bold text-[#0b1c30]">Transactions en attente</p>
+                          <p className="text-[11px] text-[#574235]/80 mt-0.5">
+                            Il y a {pendingTransactionsCount} transaction(s) à valider.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {pendingKycCount > 0 && (
+                      <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-[#f8f9ff] transition-colors">
+                        <div className="w-2 h-2 rounded-full bg-[#ff8200] mt-1.5 shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-[13px] font-bold text-[#0b1c30]">Dossiers KYC</p>
+                          <p className="text-[11px] text-[#574235]/80 mt-0.5">
+                            Il y a {pendingKycCount} demande(s) KYC à vérifier.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {openTicketsCount > 0 && (
+                      <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-[#f8f9ff] transition-colors">
+                        <div className="w-2 h-2 rounded-full bg-[#ff8200] mt-1.5 shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-[13px] font-bold text-[#0b1c30]">Support Client</p>
+                          <p className="text-[11px] text-[#574235]/80 mt-0.5">
+                            Il y a {openTicketsCount} ticket(s) ouvert(s) à traiter.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         <button className="hover:bg-[#eff4ff] rounded-full p-2 text-[#574235]/80 transition-colors">
           <HelpCircle className="w-5 h-5" />

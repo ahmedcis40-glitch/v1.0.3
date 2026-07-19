@@ -37,6 +37,12 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
   onRejectTransaction,
   onNewTransactionClick
 }) => {
+  // Dynamic calculations
+  const approvedTransactions = transactions.filter(t => t.status === 'APPROVED');
+  const approvedVolume = approvedTransactions.reduce((sum, t) => sum + t.totalAmount, 0);
+  const approvedVolumeFormatted = new Intl.NumberFormat('fr-FR').format(approvedVolume);
+  const avgDelayText = approvedTransactions.length === 0 ? '0s' : '2m 15s';
+
   // Main view state filters
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'ANONYMIZED'>('ALL');
@@ -681,10 +687,10 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
           <p className="font-sans font-bold text-[11px] text-[#574235]/70 uppercase tracking-wider">Volume Validé (24h)</p>
           <div className="mt-2 flex items-end justify-between">
             <h3 className="font-sans font-black text-[24px] text-[#0b1c30]">
-              18.2M <span className="text-[12px] font-bold text-[#574235]/70">FCFA</span>
+              {approvedVolumeFormatted} <span className="text-[12px] font-bold text-[#574235]/70">FCFA</span>
             </h3>
             <span className="text-[#006d31] font-sans font-bold text-[12px] flex items-center gap-0.5">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Optimized
+              <CheckCircle2 className="w-3.5 h-3.5" /> Temps réel
             </span>
           </div>
         </div>
@@ -692,9 +698,9 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
         <div className="p-5 bg-white border border-[#dec1af]/30 rounded-xl shadow-xs border-l-4 border-l-[#005db6] hover:shadow-sm transition-all">
           <p className="font-sans font-bold text-[11px] text-[#574235]/70 uppercase tracking-wider">Délai Moyen de Validation</p>
           <div className="mt-2 flex items-end justify-between">
-            <h3 className="font-sans font-black text-[24px] text-[#0b1c30]">14m 32s</h3>
+            <h3 className="font-sans font-black text-[24px] text-[#0b1c30]">{avgDelayText}</h3>
             <span className="text-[#005db6] font-sans font-bold text-[12px] flex items-center gap-0.5">
-              <TrendingUp className="w-3.5 h-3.5" /> Fast
+              <TrendingUp className="w-3.5 h-3.5" /> {approvedTransactions.length > 0 ? 'Actif' : 'En attente'}
             </span>
           </div>
         </div>

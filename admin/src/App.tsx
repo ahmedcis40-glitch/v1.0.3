@@ -428,6 +428,9 @@ export default function App() {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         placeholderText="Rechercher une transaction, un client..."
+        pendingTransactionsCount={transactions.filter(t => t.status === 'PENDING').length}
+        pendingKycCount={users.filter(u => u.kycStatus === 'PENDING').length}
+        openTicketsCount={tickets.filter(t => t.status === 'OUVERT').length}
       />
 
       {/* Main Content */}
