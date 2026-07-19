@@ -402,9 +402,14 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
 
                     OutlinedTextField(
                         value = passwordInput,
-                        onValueChange = { passwordInput = it; errorMsg = "" },
+                        onValueChange = { 
+                            if (it.length <= 5 && it.all { char -> char.isDigit() }) {
+                                passwordInput = it
+                                errorMsg = ""
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Mot de passe") },
+                        label = { Text(if (isRegisterMode) "Code PIN secret (5 chiffres)" else "Code PIN à 5 chiffres") },
                         leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFFFF8200)) },
                         trailingIcon = {
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -419,7 +424,7 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
                             androidx.compose.ui.text.input.VisualTransformation.None
                         else
                             androidx.compose.ui.text.input.PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                         singleLine = true,
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -427,15 +432,20 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
                     if (isRegisterMode) {
                         OutlinedTextField(
                             value = passwordConfirmInput,
-                            onValueChange = { passwordConfirmInput = it; errorMsg = "" },
+                            onValueChange = { 
+                                if (it.length <= 5 && it.all { char -> char.isDigit() }) {
+                                    passwordConfirmInput = it
+                                    errorMsg = ""
+                                }
+                            },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Confirmer le mot de passe") },
+                            label = { Text("Confirmer le Code PIN (5 chiffres)") },
                             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFFFF8200)) },
                             visualTransformation = if (passwordVisible)
                                 androidx.compose.ui.text.input.VisualTransformation.None
                             else
                                 androidx.compose.ui.text.input.PasswordVisualTransformation(),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                             singleLine = true,
                             shape = RoundedCornerShape(12.dp)
                         )
@@ -466,8 +476,8 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
                                 errorMsg = "Adresse e-mail invalide."
                                 return@Button
                             }
-                            if (passwordInput.length < 6) {
-                                errorMsg = "Le mot de passe doit faire au moins 6 caractères."
+                            if (passwordInput.length != 5 || !passwordInput.all { char -> char.isDigit() }) {
+                                errorMsg = "Le code PIN doit comporter exactement 5 chiffres."
                                 return@Button
                             }
 
@@ -477,7 +487,7 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
                                     return@Button
                                 }
                                 if (passwordInput != passwordConfirmInput) {
-                                    errorMsg = "Les deux mots de passe ne correspondent pas."
+                                    errorMsg = "Les deux codes PIN à 5 chiffres ne correspondent pas."
                                     return@Button
                                 }
                                 isLoading = true
@@ -589,44 +599,7 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Google login simulation
-            Button(
-                onClick = {
-                    triggerRealGoogleChooser()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(54.dp)
-                    .testTag("google_login_button"),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = DarkOnBackground
-                ),
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.dp, GrayBorder)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    // Google icon procedural sketch
-                    Box(
-                        modifier = Modifier
-                            .size(20.dp)
-                            .drawBehind {
-                                drawCircle(color = Color(0xFFEA4335), radius = this.size.width / 2.5f)
-                            }
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "Se connecter avec Google",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            // Standard Email signup simulation
+            // Bouton Ouvrir un compte / Se connecter avec Code PIN 5 chiffres
             Button(
                 onClick = {
                     viewModel.showGoogleAccountChooser.value = true
@@ -634,17 +607,17 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(54.dp)
-                    .testTag("email_login_button"),
+                    .testTag("open_account_button"),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = ForestGreen,
                     contentColor = Color.White
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Icon(Icons.Default.Mail, contentDescription = null)
+                Icon(Icons.Default.PersonAdd, contentDescription = null)
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = "Continuer avec l'e-mail",
+                    text = "Ouvrir un compte / Se connecter",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
