@@ -13,6 +13,7 @@ interface HeaderProps {
   pendingTransactionsCount?: number;
   pendingKycCount?: number;
   openTicketsCount?: number;
+  onSupportClick?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -26,7 +27,8 @@ export const Header: React.FC<HeaderProps> = ({
   },
   pendingTransactionsCount = 0,
   pendingKycCount = 0,
-  openTicketsCount = 0
+  openTicketsCount = 0,
+  onSupportClick = () => {}
 }) => {
   const [showNotifications, setShowNotifications] = React.useState(false);
   const totalNotifications = pendingTransactionsCount + pendingKycCount + openTicketsCount;
@@ -114,7 +116,10 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        <button className="hover:bg-[#eff4ff] rounded-full p-2 text-[#574235]/80 transition-colors">
+        <button 
+          onClick={onSupportClick}
+          className="hover:bg-[#eff4ff] rounded-full p-2 text-[#574235]/80 transition-colors"
+        >
           <HelpCircle className="w-5 h-5" />
         </button>
 

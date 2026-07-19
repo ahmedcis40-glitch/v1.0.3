@@ -431,6 +431,7 @@ export default function App() {
         pendingTransactionsCount={transactions.filter(t => t.status === 'PENDING').length}
         pendingKycCount={users.filter(u => u.kycStatus === 'PENDING').length}
         openTicketsCount={tickets.filter(t => t.status === 'OUVERT').length}
+        onSupportClick={() => setCurrentPage(Page.Support)}
       />
 
       {/* Main Content */}
