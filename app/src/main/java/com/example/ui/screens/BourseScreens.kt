@@ -3078,27 +3078,7 @@ fun ProfileScreen(viewModel: BourseViewModel) {
             }
         }
 
-        // Account Details Stats card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(1.dp, GrayBorder)
-        ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text("STATUT DU COMPTE", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("Investisseur Premium", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = OrangeBrand)
-                }
-                Column(horizontalAlignment = Alignment.End) {
-                    Text("MEMBRE DEPUIS", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("Janvier 2023", fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                }
-            }
-        }
+
 
         // Menu items Column list
         Card(
