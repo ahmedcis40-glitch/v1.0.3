@@ -108,6 +108,8 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
     val smsOtpCode = MutableStateFlow(listOf("", "", "", "", "", ""))
     val signatureBytes = MutableStateFlow<ByteArray?>(null)
 
+    val showGoogleAccountChooser = MutableStateFlow(false)
+
     // General transaction status / toast message
     private val _transactionStatus = MutableSharedFlow<String>()
     val transactionStatus: SharedFlow<String> = _transactionStatus.asSharedFlow()

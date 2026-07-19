@@ -169,6 +169,155 @@ fun BourseBottomNavBar(currentScreen: Screen, onNavigate: (Screen) -> Unit) {
 @Composable
 fun WelcomeScreen(viewModel: BourseViewModel) {
     val userProfile by viewModel.userProfile.collectAsStateWithLifecycle()
+    val showGoogleChooser by viewModel.showGoogleAccountChooser.collectAsStateWithLifecycle()
+
+    if (showGoogleChooser) {
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { viewModel.showGoogleAccountChooser.value = false }
+        ) {
+            androidx.compose.material3.Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(horizontal = 16.dp),
+                shape = RoundedCornerShape(28.dp),
+                color = Color.White,
+                tonalElevation = 6.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = "G o o g l e",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.DarkGray,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    
+                    Text(
+                        text = "Choisissez un compte",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1F1F1F)
+                    )
+                    
+                    Text(
+                        text = "pour continuer vers l'application BAOU",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF444746),
+                        textAlign = TextAlign.Center
+                    )
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    val accounts = listOf(
+                        Triple("mamadou.konate@email.ci", "Mamadou Konaté", Color(0xFF1A73E8)),
+                        Triple("a.diop@email.sn", "Amadou Diop", Color(0xFF34A853)),
+                        Triple("k.coulibaly@email.ci", "Kofi Coulibaly (Suspendu)", Color(0xFFEA4335))
+                    )
+                    
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        accounts.forEach { account ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .clickable {
+                                        viewModel.showGoogleAccountChooser.value = false
+                                        viewModel.performLogin(account.first, "password123") { success ->
+                                            if (success) {
+                                                // Recharger les données depuis le serveur après connexion Google
+                                                viewModel.syncWithBackend()
+                                                if (viewModel.userProfile.value != null && viewModel.userProfile.value!!.kycStep >= 5) {
+                                                    viewModel.navigateTo(Screen.DASHBOARD)
+                                                } else {
+                                                    viewModel.navigateTo(Screen.ONBOARDING)
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .padding(vertical = 12.dp, horizontal = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(RoundedCornerShape(percent = 50))
+                                        .background(account.third),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = account.second.first().toString(),
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp
+                                    )
+                                }
+                                
+                                Spacer(modifier = Modifier.width(16.dp))
+                                
+                                Column {
+                                    Text(
+                                        text = account.second,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp,
+                                        color = Color(0xFF1F1F1F)
+                                    )
+                                    Text(
+                                        text = account.first,
+                                        fontSize = 12.sp,
+                                        color = Color(0xFF444746)
+                                    )
+                                }
+                            }
+                            HorizontalDivider(color = Color(0xFFF1F3F4))
+                        }
+                    }
+                    
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = null,
+                            tint = Color(0xFF444746),
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = "Utiliser un autre compte",
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 14.sp,
+                            color = Color(0xFF444746)
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Text(
+                        text = "Pour continuer, Google partagera votre nom, votre adresse e-mail, votre photo de profil et votre langue avec BAOU.",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 11.sp,
+                        color = Color(0xFF747775),
+                        textAlign = TextAlign.Center,
+                        lineHeight = 14.sp
+                    )
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -223,13 +372,7 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
             // Google login simulation
             Button(
                 onClick = {
-                    viewModel.performLogin {
-                        if (userProfile != null && userProfile!!.kycStep >= 5) {
-                            viewModel.navigateTo(Screen.DASHBOARD)
-                        } else {
-                            viewModel.navigateTo(Screen.ONBOARDING)
-                        }
-                    }
+                    viewModel.showGoogleAccountChooser.value = true
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -266,13 +409,7 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
             // Standard Email signup simulation
             Button(
                 onClick = {
-                    viewModel.performLogin {
-                        if (userProfile != null && userProfile!!.kycStep >= 5) {
-                            viewModel.navigateTo(Screen.DASHBOARD)
-                        } else {
-                            viewModel.navigateTo(Screen.ONBOARDING)
-                        }
-                    }
+                    viewModel.showGoogleAccountChooser.value = true
                 },
                 modifier = Modifier
                     .fillMaxWidth()
