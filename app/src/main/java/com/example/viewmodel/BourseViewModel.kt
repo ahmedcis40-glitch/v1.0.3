@@ -121,9 +121,10 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
 
     fun saveServerUrl(url: String, context: android.content.Context) {
         val prefs = context.getSharedPreferences("baou_prefs", android.content.Context.MODE_PRIVATE)
-        prefs.edit().putString("server_url", url).apply()
-        serverUrlInput.value = url
         com.example.data.network.ApiClient.updateBaseUrl(url)
+        val sanitized = com.example.data.network.ApiClient.getBaseUrl()
+        prefs.edit().putString("server_url", sanitized).apply()
+        serverUrlInput.value = sanitized
         viewModelScope.launch {
             _transactionStatus.emit("Adresse du serveur configurée !")
         }

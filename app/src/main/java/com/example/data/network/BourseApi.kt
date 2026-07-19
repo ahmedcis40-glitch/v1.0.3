@@ -82,9 +82,15 @@ object ApiClient {
         private set
 
     fun updateBaseUrl(newUrl: String) {
-        val sanitized = if (newUrl.endsWith("/")) newUrl else "$newUrl/"
-        if (sanitized == currentUrl) return
-        currentUrl = sanitized
+        var tempUrl = newUrl.trim()
+        if (!tempUrl.endsWith("/")) {
+            tempUrl = "$tempUrl/"
+        }
+        if (!tempUrl.endsWith("api/")) {
+            tempUrl = "${tempUrl}api/"
+        }
+        if (tempUrl == currentUrl) return
+        currentUrl = tempUrl
         retrofit = Retrofit.Builder()
             .baseUrl(currentUrl)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
