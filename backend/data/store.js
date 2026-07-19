@@ -287,12 +287,40 @@ async function removeHoldingFromSupabase(userId, ticker) {
 
 const chatMessages = {};
 
+const documents = [
+  {
+    id: 'DOC-101',
+    name: "Contrat d'Ouverture de Compte SGI.pdf",
+    category: 'Contrat',
+    description: "Contrat officiel d'ouverture de compte titres SGI BRVM à distance.",
+    date: '19/07/2026',
+    url: '/downloads/contrat_ouverture_sgi.pdf'
+  },
+  {
+    id: 'DOC-102',
+    name: "Fiche d'Inscription KYC & Pièces.pdf",
+    category: 'KYC',
+    description: "Formulaire de conformité et liste des pièces requises.",
+    date: '19/07/2026',
+    url: '/downloads/fiche_kyc_sgi.pdf'
+  },
+  {
+    id: 'DOC-103',
+    name: 'Reglement General BRVM AMF-UMOA.pdf',
+    category: 'Règlement',
+    description: 'Règlement général des opérations boursières sur la BRVM.',
+    date: '19/07/2026',
+    url: '/downloads/reglement_general_brvm.pdf'
+  }
+];
+
 module.exports = { 
   users, 
   stocks, 
   transactions, 
   tickets,
   chatMessages,
+  documents,
   portfolios, 
   adminStats,
   saveUserToSupabase,

@@ -150,4 +150,39 @@ router.post('/chat/:userId', requireAuth, requireAdmin, (req, res) => {
   res.status(201).json({ success: true, data: msg });
 });
 
+// GET /api/documents — Lister les documents & contrats officiels pour les clients
+router.get('/documents', (req, res) => {
+  const { documents } = require('../data/store');
+  res.json({ success: true, data: documents });
+});
+
+// POST /api/admin/documents — Admin: Ajouter / Publier un nouveau document PDF
+router.post('/documents', requireAuth, requireAdmin, (req, res) => {
+  const { name, category, description } = req.body;
+  if (!name) return res.status(400).json({ error: 'Le nom du document est requis.' });
+
+  const { documents } = require('../data/store');
+  const newDoc = {
+    id: `DOC-${Math.floor(100 + Math.random() * 900)}`,
+    name: name.endsWith('.pdf') ? name : `${name}.pdf`,
+    category: category || 'Contrat',
+    description: description || 'Document PDF officiel mis à disposition par l\'administration.',
+    date: new Date().toLocaleDateString('fr-FR'),
+    url: `/downloads/${name.toLowerCase().replace(/[^a-z0-9]/g, '_')}.pdf`
+  };
+
+  documents.unshift(newDoc);
+  res.status(201).json({ success: true, message: 'Document publié avec succès !', data: newDoc });
+});
+
+// DELETE /api/admin/documents/:id — Admin: Supprimer un document PDF
+router.delete('/documents/:id', requireAuth, requireAdmin, (req, res) => {
+  const { documents } = require('../data/store');
+  const index = documents.findIndex(d => d.id === req.params.id);
+  if (index === -1) return res.status(404).json({ error: 'Document introuvable.' });
+
+  documents.splice(index, 1);
+  res.json({ success: true, message: 'Document supprimé avec succès.' });
+});
+
 module.exports = router;

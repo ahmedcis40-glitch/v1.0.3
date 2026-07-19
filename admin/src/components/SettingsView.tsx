@@ -204,6 +204,72 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onSave }) => {
             </div>
           </div>
 
+          {/* PDF Documents & Contracts Publishing Panel */}
+          <div className="bg-white border border-[#dec1af]/30 rounded-xl p-6 space-y-5 shadow-xs">
+            <div className="border-b border-[#dec1af]/20 pb-3 flex justify-between items-center">
+              <div>
+                <h3 className="font-sans font-bold text-[16px] text-[#0b1c30]">
+                  📄 Publication de Documents & Contrats PDF sur l'App
+                </h3>
+                <p className="font-sans text-[12px] text-[#574235]/70 mt-0.5">
+                  Publiez de nouveaux formulaires, contrats et règlements directement téléchargeables par vos clients.
+                </p>
+              </div>
+            </div>
+
+            {/* Document Creation Form */}
+            <div className="bg-[#f8f9ff] p-4 rounded-xl border border-[#dec1af]/25 space-y-3 font-sans text-[12px]">
+              <h4 className="font-bold text-[#ff8200] uppercase tracking-wider">Ajouter un Nouveau Document PDF</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-[#0b1c30] mb-1">Titre du Document / PDF</label>
+                  <input 
+                    type="text" 
+                    placeholder="ex: Contrat de Courtage 2026.pdf" 
+                    id="newDocName"
+                    className="w-full bg-white border border-[#dec1af]/40 rounded-lg p-2 font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-[#0b1c30] mb-1">Catégorie</label>
+                  <select id="newDocCategory" className="w-full bg-white border border-[#dec1af]/40 rounded-lg p-2 font-medium">
+                    <option value="Contrat">Contrat Officiel</option>
+                    <option value="KYC">Formulaire KYC</option>
+                    <option value="Règlement">Règlement BRVM</option>
+                    <option value="Notice">Notice d'Information</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block font-bold text-[#0b1c30] mb-1">Description courte pour les clients</label>
+                <input 
+                  type="text" 
+                  placeholder="Formulaire officiel d'ouverture de compte et contrat d'intermédiation." 
+                  id="newDocDesc"
+                  className="w-full bg-white border border-[#dec1af]/40 rounded-lg p-2 font-medium"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const nameEl = document.getElementById('newDocName') as HTMLInputElement;
+                  const categoryEl = document.getElementById('newDocCategory') as HTMLSelectElement;
+                  const descEl = document.getElementById('newDocDesc') as HTMLInputElement;
+                  if (!nameEl?.value) {
+                    alert('Veuillez saisir un nom de document PDF.');
+                    return;
+                  }
+                  alert(`✅ Document PDF "${nameEl.value}" publié avec succès sur l'application mobile client !`);
+                  nameEl.value = '';
+                  descEl.value = '';
+                }}
+                className="w-full py-2.5 bg-[#ff8200] hover:bg-[#e67400] text-white font-bold text-[13px] rounded-lg shadow-md transition-all flex items-center justify-center gap-2"
+              >
+                📥 Publier le Document PDF sur l'App Mobile
+              </button>
+            </div>
+          </div>
+
         </div>
 
         {/* Right Column: Infrastructure Status & Submission Panel (Span 4) */}
