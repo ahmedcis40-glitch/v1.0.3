@@ -440,11 +440,13 @@ export default function App() {
         <div className="w-full max-w-md">
           {/* Brand */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-[#ff8200] rounded-2xl shadow-lg shadow-[#ff8200]/30 mb-4">
-              <Landmark className="w-8 h-8 text-white" />
-            </div>
+            <img 
+              src="/baou_logo.jpg" 
+              alt="BAOU Logo" 
+              className="w-20 h-20 rounded-2xl mx-auto mb-4 object-cover shadow-2xl border-2 border-white/20" 
+            />
             <h1 className="text-3xl font-bold text-white tracking-tight">BAOU Finance</h1>
-            <p className="text-[#dec1af]/70 mt-1 text-sm font-medium">Portail Administrateur</p>
+            <p className="text-[#ff8200] mt-1 text-sm font-bold uppercase tracking-wider">Portail Administrateur</p>
           </div>
 
           {/* Login Card */}

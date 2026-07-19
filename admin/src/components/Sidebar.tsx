@@ -42,15 +42,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside className="w-[280px] h-screen fixed left-0 top-0 bg-white border-r border-[#dec1af]/30 flex flex-col py-6 z-50">
       {/* Brand Logo Header */}
       <div className="px-6 mb-8 flex items-center gap-3">
-        <div className="w-10 h-10 bg-[#ff8200] rounded flex items-center justify-center text-white shadow-sm shadow-[#ff8200]/20">
-          <Landmark className="w-5 h-5" />
-        </div>
+        <img 
+          src="/baou_logo.jpg" 
+          alt="BAOU Logo" 
+          className="w-11 h-11 rounded-xl object-cover border border-[#dec1af]/30 shadow-md" 
+        />
         <div>
-          <h1 className="font-sans font-bold text-[20px] text-[#954a00] leading-none tracking-tight">
-            Éléphant Bourse
+          <h1 className="font-sans font-bold text-[20px] text-[#0b1c30] leading-none tracking-tight">
+            BAOU Finance
           </h1>
-          <p className="font-sans text-[11px] font-semibold text-[#574235]/70 uppercase tracking-wider mt-0.5">
-            Admin Portal
+          <p className="font-sans text-[10px] text-[#ff8200] font-bold mt-1 tracking-wider uppercase">
+            Portail Admin
           </p>
         </div>
       </div>
