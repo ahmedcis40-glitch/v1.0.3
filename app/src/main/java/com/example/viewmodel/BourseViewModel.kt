@@ -79,14 +79,34 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
             initialValue = emptyList()
         )
 
-    // Watchlist stock constants
+    // Watchlist stock constants — Liste complète des sociétés cotées à la BRVM
     val watchlist = listOf(
         StockWatchItem("SNTS", "Sonatel CI", "Télécoms", 16850.0, 2.45),
-        StockWatchItem("BOAB", "BOA Bénin", "Banque", 5900.0, -0.45),
         StockWatchItem("ORAC", "Orange CI", "Télécoms", 10450.0, -0.85),
-        StockWatchItem("ETI", "Ecobank Transnational", "Banque", 18.0, 1.12),
-        StockWatchItem("ONAB", "Onatel BF", "Télécoms", 3100.0, 0.0),
-        StockWatchItem("SOGC", "SOGB CI", "Agriculture", 4200.0, 1.85)
+        StockWatchItem("ONTBF", "Onatel BF", "Télécoms", 2695.0, -1.82),
+        StockWatchItem("SGBC", "Société Générale CI", "Banque", 37995.0, -0.04),
+        StockWatchItem("ETI", "Ecobank Transnational", "Banque", 73.0, -6.41),
+        StockWatchItem("BOAB", "BOA Bénin", "Banque", 8780.0, 0.17),
+        StockWatchItem("BOAC", "BOA Côte d'Ivoire", "Banque", 7200.0, 1.41),
+        StockWatchItem("BOABF", "BOA Burkina Faso", "Banque", 6850.0, 0.74),
+        StockWatchItem("BOAM", "BOA Mali", "Banque", 1850.0, 0.0),
+        StockWatchItem("BOAN", "BOA Niger", "Banque", 4900.0, 0.50),
+        StockWatchItem("BOAS", "BOA Sénégal", "Banque", 3200.0, 3.10),
+        StockWatchItem("BICI", "BICICI", "Banque", 7800.0, 1.04),
+        StockWatchItem("SIB", "Société Ivoirienne de Banque", "Banque", 5400.0, 0.93),
+        StockWatchItem("NSBC", "NSIA Banque CI", "Banque", 6100.0, -0.50),
+        StockWatchItem("CBIB", "Coris Bank International BF", "Banque", 10200.0, 1.20),
+        StockWatchItem("PALC", "Palm CI", "Agriculture", 7100.0, 2.15),
+        StockWatchItem("SOGC", "SOGB CI", "Agriculture", 4200.0, 1.85),
+        StockWatchItem("SAPC", "SAPH CI", "Agriculture", 3400.0, -0.75),
+        StockWatchItem("SLBC", "Solibra CI", "Industrie", 89000.0, 0.0),
+        StockWatchItem("UNXC", "Uniwax CI", "Industrie", 780.0, -1.25),
+        StockWatchItem("CABC", "Sicable CI", "Industrie", 3625.0, -2.29),
+        StockWatchItem("CIEC", "CIE Côte d'Ivoire", "Services Publics", 2150.0, 0.45),
+        StockWatchItem("SDCC", "SODECI Côte d'Ivoire", "Services Publics", 5300.0, 1.10),
+        StockWatchItem("CFAC", "CFAO Motors CI", "Distribution", 920.0, 0.0),
+        StockWatchItem("TTLS", "TotalEnergies Marketing SN", "Distribution", 2500.0, 0.80),
+        StockWatchItem("SDSC", "AGL / Bolloré Transport CI", "Transport", 1650.0, -0.60)
     )
 
     // Order state variables (bound to view)
