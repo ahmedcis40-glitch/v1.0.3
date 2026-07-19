@@ -36,15 +36,24 @@ Commandes à exécuter (pour lancer en mode développement) :
    - Mot de passe : admin2024
 
 ------------------------------------------------------------------------
-3. L'APPLICATION MOBILE BAOU (Android Kotlin)
+3. L'APPLICATION MOBILE BAOU (Android Kotlin) sur Emulateur ou Vrai Téléphone
 ------------------------------------------------------------------------
-L'application mobile se connecte au backend local.
+L'application mobile se connecte au backend local ou distant.
 
 - Ouvrez le dossier racine du projet avec Android Studio.
 - Attendez la synchronisation Gradle.
 - Lancez l'application sur un émulateur ou sur votre téléphone physique.
-- L'application pointe vers http://10.0.2.2:3001/api/ (l'adresse de 
-  l'ordinateur hôte vue depuis l'émulateur Android).
+
+Configuration de l'adresse du serveur (Indispensable pour vrai téléphone) :
+- Sur l'écran d'accueil, cliquez sur l'icône d'ENGRENAGE (Paramètres) 
+  située en haut à droite.
+- Saisissez l'adresse de votre serveur :
+  * Pour l'émulateur local : http://10.0.2.2:3001/api/
+  * Pour votre téléphone en Wi-Fi local : http://[VOTRE_IP_LOCALE]:3001/api/
+  * Pour un backend en ligne (tunnel Ngrok/Cloudflare ou GitHub Action) :
+    https://votre-url-publique.ngrok-free.app/api/
+- Cliquez sur "Enregistrer". L'application se connectera instantanément 
+  à cette adresse et s'en souviendra pour les prochains lancements !
 
 Authentification Google (Simulée) :
 - Au clic sur le bouton de connexion, sélectionnez l'un des comptes Google 
