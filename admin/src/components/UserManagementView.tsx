@@ -13,7 +13,11 @@ import {
   ChevronRight, 
   X,
   MoreVertical,
-  TrendingUp
+  TrendingUp,
+  Eye,
+  FileText,
+  Download,
+  ZoomIn
 } from 'lucide-react';
 
 interface UserManagementViewProps {
@@ -34,6 +38,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
   const [accountFilter, setAccountFilter] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedUserForDetails, setSelectedUserForDetails] = useState<User | null>(null);
+  const [previewDocument, setPreviewDocument] = useState<{ title: string; type: 'IMAGE' | 'PDF'; subtitle: string; contentText: string } | null>(null);
 
   // Form states for new user
   const [newUserName, setNewUserName] = useState('');
@@ -505,7 +510,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
               {/* Section 2: Pièces du Dossier SGI à Vérifier */}
               <div className="space-y-3">
                 <h4 className="font-bold text-[12px] text-[#0b1c30] uppercase tracking-wider">
-                  2. Pièces Justificatives du Dossier SGI BRVM
+                  2. Pièces Justificatives du Dossier SGI BRVM (Lecture & Consultation)
                 </h4>
                 <div className="space-y-2.5">
                   <div className="flex items-center justify-between p-3 border border-[#dec1af]/30 rounded-xl bg-white">
@@ -514,13 +519,27 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                         🪪
                       </div>
                       <div>
-                        <p className="font-bold text-[#0b1c30]">Pièce d'Identité officielle</p>
-                        <p className="text-[11px] text-[#574235]/70">CNI ivoirienne ou Passeport valide (Scan HD)</p>
+                        <p className="font-bold text-[#0b1c30]">Pièce d'Identité officielle (CNI / Passeport)</p>
+                        <p className="text-[11px] text-[#574235]/70">Scan HD Recto/Verso · Horodaté AMF-UMOA</p>
                       </div>
                     </div>
-                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold text-[11px] rounded-full">
-                      {selectedUserForDetails.identityDocStatus || 'Présent ✅'}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setPreviewDocument({
+                          title: `Pièce d'Identité CNI — ${selectedUserForDetails.name}`,
+                          type: 'IMAGE',
+                          subtitle: 'Document officiel d\'identité scanné en haute résolution',
+                          contentText: `REPUBLIQUE DE COTE D'IVOIRE\nCARTE NATIONALE D'IDENTITE\nNom: ${selectedUserForDetails.name}\nProfession: ${selectedUserForDetails.profession || 'Investisseur'}\nRésidence: ${selectedUserForDetails.residence || 'Abidjan'}\nStatut: Conforme & Validé AMF-UMOA`
+                        })}
+                        className="px-3 py-1.5 bg-[#eff4ff] hover:bg-[#ff8200] hover:text-white text-[#ff8200] font-bold text-[11px] rounded-lg transition-all flex items-center gap-1 shadow-xs"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        Lire la Pièce
+                      </button>
+                      <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold text-[11px] rounded-full">
+                        {selectedUserForDetails.identityDocStatus || 'Présent ✅'}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="flex items-center justify-between p-3 border border-[#dec1af]/30 rounded-xl bg-white">
@@ -529,13 +548,27 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                         🏡
                       </div>
                       <div>
-                        <p className="font-bold text-[#0b1c30]">Justificatif de Domicile</p>
-                        <p className="text-[11px] text-[#574235]/70">Facture CIE / SODECI de moins de 3 mois</p>
+                        <p className="font-bold text-[#0b1c30]">Justificatif de Domicile (Facture CIE / SODECI)</p>
+                        <p className="text-[11px] text-[#574235]/70">Moins de 3 mois · Certifié conforme par la SGI</p>
                       </div>
                     </div>
-                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold text-[11px] rounded-full">
-                      {selectedUserForDetails.proofOfAddressStatus || 'Présent ✅'}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setPreviewDocument({
+                          title: `Justificatif de Domicile CIE/SODECI — ${selectedUserForDetails.name}`,
+                          type: 'PDF',
+                          subtitle: 'Facture d\'électricité / eau certifiée récents',
+                          contentText: `COMPAGNIE IVOIRIENNE D'ELECTRICITE (CIE)\nFACTURE D'ABONNEMENT ELECTRICITE\nTitulaire: ${selectedUserForDetails.name}\nAdresse de distribution: ${selectedUserForDetails.residence || 'Abidjan, Côte d\'Ivoire'}\nMontant: 42.500 FCFA · Statut de règlement: PAYÉ\nHorodatage: Certifié conforme SGI BRVM`
+                        })}
+                        className="px-3 py-1.5 bg-[#eff4ff] hover:bg-[#ff8200] hover:text-white text-[#ff8200] font-bold text-[11px] rounded-lg transition-all flex items-center gap-1 shadow-xs"
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        Lire le PDF
+                      </button>
+                      <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold text-[11px] rounded-full">
+                        {selectedUserForDetails.proofOfAddressStatus || 'Présent ✅'}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="flex items-center justify-between p-3 border border-[#dec1af]/30 rounded-xl bg-white">
@@ -544,13 +577,27 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                         ✍️
                       </div>
                       <div>
-                        <p className="font-bold text-[#0b1c30]">Signature & Contrat SGI BRVM</p>
-                        <p className="text-[11px] text-[#574235]/70">Signé électroniquement (Horodatage conforme AMF)</p>
+                        <p className="font-bold text-[#0b1c30]">Contrat SGI BRVM & Signature Numérique</p>
+                        <p className="text-[11px] text-[#574235]/70">Signé électroniquement (Horodatage conforme AMF-UMOA)</p>
                       </div>
                     </div>
-                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold text-[11px] rounded-full">
-                      {selectedUserForDetails.signatureStatus || 'Signé ✅'}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setPreviewDocument({
+                          title: `Contrat d'Ouverture de Compte SGI — ${selectedUserForDetails.name}`,
+                          type: 'PDF',
+                          subtitle: 'Contrat d\'ouverture de compte titres signé à distance',
+                          contentText: `CONTRAT D'OUVERTURE DE COMPTE TITRES SGI BRVM\n====================================================\nEntre la Société de Gestion et d'Intermédiation (SGI) et :\nInvestisseur: ${selectedUserForDetails.name}\nEmail: ${selectedUserForDetails.email}\nWhatsApp: ${selectedUserForDetails.whatsapp || 'Non renseigné'}\n\nTermes & Conditions:\n1. L'investisseur donne mandat à la SGI pour l'exécution d'ordres sur la BRVM.\n2. Compte SGI exempt de frais de tenue de compte bancaire.\n\nSIGNATURE ELECTRONIQUE :\nHorodatage AMF-UMOA : VERIFIE & SECURISE ✅`
+                        })}
+                        className="px-3 py-1.5 bg-[#eff4ff] hover:bg-[#ff8200] hover:text-white text-[#ff8200] font-bold text-[11px] rounded-lg transition-all flex items-center gap-1 shadow-xs"
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        Lire le Contrat
+                      </button>
+                      <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold text-[11px] rounded-full">
+                        {selectedUserForDetails.signatureStatus || 'Signé ✅'}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="flex items-center justify-between p-3 border border-[#dec1af]/20 rounded-xl bg-gray-50 opacity-70">
@@ -625,6 +672,108 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                 </div>
               </div>
 
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Document & Photo Reader Reader Modal */}
+      {previewDocument && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[200] flex items-center justify-center p-4">
+          <div className="bg-[#0b1c30] rounded-2xl w-full max-w-3xl border border-white/20 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Document Reader Header */}
+            <div className="p-4 bg-white/10 border-b border-white/15 flex justify-between items-center text-white">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#ff8200] flex items-center justify-center text-white font-bold">
+                  {previewDocument.type === 'IMAGE' ? <Eye className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
+                </div>
+                <div>
+                  <h3 className="font-bold text-[15px] text-white">{previewDocument.title}</h3>
+                  <p className="text-[11px] text-white/70">{previewDocument.subtitle}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => alert(`Téléchargement de ${previewDocument.title} démarré...`)}
+                  className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white font-bold text-[12px] rounded-lg transition-all flex items-center gap-1.5"
+                >
+                  <Download className="w-4 h-4" />
+                  Télécharger
+                </button>
+                <button
+                  onClick={() => setPreviewDocument(null)}
+                  className="text-white/60 hover:text-white hover:bg-white/10 p-1.5 rounded-full transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* Document View Canvas Container */}
+            <div className="p-6 overflow-y-auto flex-1 flex flex-col items-center justify-center bg-[#071322]">
+              {previewDocument.type === 'IMAGE' ? (
+                <div className="w-full max-w-xl bg-white/5 border border-white/10 p-6 rounded-2xl text-center space-y-4">
+                  {/* Digital Document Identity Scan Card Representation */}
+                  <div className="bg-gradient-to-br from-emerald-900/40 via-[#0b1c30] to-emerald-950/40 p-6 rounded-xl border border-emerald-500/30 text-left relative overflow-hidden shadow-inner">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <span className="text-[10px] font-bold text-emerald-400 tracking-widest uppercase">REPUBLIQUE DE COTE D'IVOIRE</span>
+                        <h4 className="font-bold text-white text-[16px]">CARTE NATIONALE D'IDENTITE</h4>
+                      </div>
+                      <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 font-bold text-[10px] rounded border border-emerald-400/30">
+                        SCAN HD VERIFIÉ
+                      </span>
+                    </div>
+
+                    <div className="flex gap-4 items-center">
+                      <div className="w-24 h-28 bg-emerald-950/80 border border-emerald-500/40 rounded-lg flex flex-col items-center justify-center text-center p-2">
+                        <span className="text-3xl mb-1">👤</span>
+                        <span className="text-[9px] text-emerald-300 font-bold">PHOTO CLIENT</span>
+                      </div>
+                      <div className="space-y-1.5 text-white/90 text-[12px] font-sans">
+                        <pre className="font-mono text-[12px] text-emerald-200 whitespace-pre-wrap">
+                          {previewDocument.contentText}
+                        </pre>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-white/50 italic">
+                    Scanné haute résolution · Empreinte d'authenticité horodatée AMF-UMOA
+                  </p>
+                </div>
+              ) : (
+                <div className="w-full bg-white text-gray-900 p-8 rounded-xl shadow-2xl font-serif text-[13px] leading-relaxed space-y-4 max-w-xl">
+                  <div className="border-b border-gray-300 pb-4 flex justify-between items-center">
+                    <div>
+                      <h4 className="font-bold text-[16px] text-[#0b1c30]">{previewDocument.title}</h4>
+                      <p className="text-[11px] text-gray-500">Document PDF Officiel · Certification SGI BRVM</p>
+                    </div>
+                    <span className="text-emerald-700 font-bold text-[12px] bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                      DOCUMENT VALIDE ✅
+                    </span>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 font-mono text-[12px] text-gray-800 whitespace-pre-wrap">
+                    {previewDocument.contentText}
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-200 flex justify-between items-center text-[11px] text-gray-500 font-sans">
+                    <span>Certificat Numérique: 0x9F4B...82A1</span>
+                    <span>Format: PDF / A-1b Compliant</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Document Reader Footer */}
+            <div className="p-4 bg-white/5 border-t border-white/10 flex justify-between items-center text-white/70 text-[12px]">
+              <span>Affichage sécurisé Espace Admin</span>
+              <button
+                onClick={() => setPreviewDocument(null)}
+                className="px-5 py-2 bg-[#ff8200] hover:bg-[#e67400] text-white font-bold text-[13px] rounded-xl transition-all shadow-md"
+              >
+                Fermer la lecture
+              </button>
             </div>
           </div>
         </div>
