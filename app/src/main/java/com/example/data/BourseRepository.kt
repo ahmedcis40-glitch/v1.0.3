@@ -102,7 +102,7 @@ class BourseRepository(private val bourseDao: BourseDao) {
                                     val newQty = existing.sharesCount + netTx.quantity
                                     holdingsMap[netTx.ticker] = existing.copy(
                                         sharesCount = newQty,
-                                        value = newQty * netTx.price
+                                        currentPrice = netTx.price
                                     )
                                 } else {
                                     holdingsMap[netTx.ticker] = HoldingsEntity(
