@@ -1,0 +1,64 @@
+========================================================================
+                      BAOU - INSTRUCTIONS DE DEMARRAGE
+========================================================================
+
+Ce projet est composé d'un backend Node.js (Express), d'un portail admin React
+et d'une application mobile Android native (Kotlin / Jetpack Compose).
+Toutes les données sont synchronisées de façon persistante sur Supabase.
+
+------------------------------------------------------------------------
+1. ETAPE PREALABLE : LE BACKEND EXPRESS
+------------------------------------------------------------------------
+Le backend centralise la logique métier et se connecte à Supabase.
+
+Commandes à exécuter :
+   cd backend
+   npm install
+   node server.js
+
+-> Le backend démarrera sur : http://localhost:3001
+-> Il chargera automatiquement les derniers cours réels de la BRVM
+   depuis les fichiers CSV locaux au démarrage.
+
+------------------------------------------------------------------------
+2. LE PORTAIL ADMINISTRATEUR (React / Vite)
+------------------------------------------------------------------------
+Il permet de valider ou rejeter les transactions de dépôt et d'achat/vente.
+
+Commandes à exécuter (pour lancer en mode développement) :
+   cd admin
+   npm install
+   npm run dev
+
+-> Accessible à l'adresse fournie dans la console (ex: http://localhost:5173).
+-> Identifiants de connexion Admin par défaut :
+   - Email : admin@elephantbourse.ci
+   - Mot de passe : admin2024
+
+------------------------------------------------------------------------
+3. L'APPLICATION MOBILE BAOU (Android Kotlin)
+------------------------------------------------------------------------
+L'application mobile se connecte au backend local.
+
+- Ouvrez le dossier racine du projet avec Android Studio.
+- Attendez la synchronisation Gradle.
+- Lancez l'application sur un émulateur ou sur votre téléphone physique.
+- L'application pointe vers http://10.0.2.2:3001/api/ (l'adresse de 
+  l'ordinateur hôte vue depuis l'émulateur Android).
+
+Authentification Google (Simulée) :
+- Au clic sur le bouton de connexion, sélectionnez l'un des comptes Google 
+  de démonstration :
+  * mamadou.konate@email.ci (Client Premium - Solde: 1 450 200 FCFA)
+  * a.diop@email.sn (Client Standard - Solde: 654 000 FCFA)
+  * k.coulibaly@email.ci (Client Suspendu)
+
+------------------------------------------------------------------------
+4. DEPOTS VIA WAVE CI
+------------------------------------------------------------------------
+- Sur l'écran Portfolio -> Déposer, saisissez un montant et choisissez "Wave CI".
+- Après confirmation, l'application ouvrira le lien de paiement officiel :
+  https://pay.wave.com/m/M_ci_XRkfDq_9M8GP/c/ci/?src=p
+- La transaction est automatiquement enregistrée et validée sur le serveur.
+- Dès que vous revenez dans l'application, le nouveau solde est rafraîchi.
+========================================================================
