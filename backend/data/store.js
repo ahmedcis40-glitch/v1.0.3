@@ -11,7 +11,7 @@ const users = [
   // Admin uniquement
   {
     id: 'ADMIN-001',
-    name: 'M. Kouassi',
+    name: 'M. Cissé',
     email: 'admin@elephantbourse.ci',
     password: 'admin2024',
     role: 'admin',

@@ -17,7 +17,7 @@ export const Header: React.FC<HeaderProps> = ({
   setSearchQuery,
   placeholderText = 'Rechercher une transaction, un client...',
   adminProfile = {
-    name: 'M. Kouassi',
+    name: 'M. Cissé',
     role: 'Admin Level 4',
     avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80'
   }
