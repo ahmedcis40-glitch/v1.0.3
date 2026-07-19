@@ -2008,7 +2008,7 @@ fun DepositScreen(viewModel: BourseViewModel) {
         }
 
         Button(
-            onClick = { viewModel.executeDeposit() },
+            onClick = { viewModel.executeDeposit(context) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp)

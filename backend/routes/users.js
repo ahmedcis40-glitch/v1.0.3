@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { users, adminStats } = require('../data/store');
+const { users, adminStats, saveUserToSupabase } = require('../data/store');
 const { sessions } = require('./auth');
 
 function requireAuth(req, res, next) {
@@ -76,6 +76,7 @@ router.patch('/users/:id/kyc', requireAuth, requireAdmin, (req, res) => {
 
   const prevStatus = user.kyc;
   user.kyc = status;
+  saveUserToSupabase(user);
 
   res.json({
     success: true,
@@ -91,6 +92,7 @@ router.patch('/users/:id/suspend', requireAuth, requireAdmin, (req, res) => {
 
   user.kyc = user.kyc === 'suspended' ? 'verified' : 'suspended';
   const action = user.kyc === 'suspended' ? 'suspendu' : 'réactivé';
+  saveUserToSupabase(user);
 
   res.json({
     success: true,

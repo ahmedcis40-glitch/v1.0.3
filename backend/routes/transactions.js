@@ -1,7 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
-const { transactions, users, stocks } = require('../data/store');
+const { 
+  transactions, 
+  users, 
+  stocks, 
+  saveUserToSupabase, 
+  saveTransactionToSupabase, 
+  saveHoldingToSupabase, 
+  removeHoldingFromSupabase 
+} = require('../data/store');
 const { sessions } = require('./auth');
 
 // Middleware: vérifier token
@@ -95,6 +103,9 @@ router.post('/', requireAuth, (req, res) => {
     });
   }
 
+  const isWave = paymentMethod === 'Wave CI';
+  const status = isWave ? 'validated' : 'pending';
+
   const newTx = {
     id: `SN-${Math.floor(1000 + Math.random() * 9000)}`,
     userId: req.session.userId,
@@ -108,16 +119,22 @@ router.post('/', requireAuth, (req, res) => {
     fees: Math.round(fees * 100) / 100,
     tva: Math.round(tva * 100) / 100,
     grandTotal: Math.round(grandTotal * 100) / 100,
-    status: 'pending',
+    status: status,
     paymentRef: paymentRef || `AUTO-${Date.now()}`,
     paymentMethod: paymentMethod || 'Non spécifié',
     rejectionReason: null,
     submittedAt: new Date().toISOString(),
-    processedAt: null,
-    processedBy: null,
+    processedAt: isWave ? new Date().toISOString() : null,
+    processedBy: isWave ? 'SYSTEM' : null,
   };
 
+  if (isWave) {
+    user.balance += total;
+    saveUserToSupabase(user);
+  }
+
   transactions.unshift(newTx);
+  saveTransactionToSupabase(newTx);
 
   res.status(201).json({
     success: true,
@@ -143,7 +160,64 @@ router.patch('/:id/validate', requireAuth, requireAdmin, (req, res) => {
   if (user) {
     if (tx.type === 'BUY') user.balance -= tx.grandTotal;
     else user.balance += tx.total;
+    saveUserToSupabase(user);
   }
+
+  // Mettre à jour les holdings locaux et Supabase
+  const { portfolios } = require('../data/store');
+  let userPortfolio = portfolios[tx.userId];
+  if (!userPortfolio) {
+    userPortfolio = {
+      userId: tx.userId,
+      totalValue: 0,
+      invested: 0,
+      gainLoss: 0,
+      gainLossPct: 0,
+      dailyChange: 0,
+      dailyChangePct: 0,
+      dividendsReceived: 0,
+      holdings: []
+    };
+    portfolios[tx.userId] = userPortfolio;
+  }
+
+  if (tx.type === 'BUY') {
+    let holding = userPortfolio.holdings.find(h => h.ticker === tx.ticker);
+    if (holding) {
+      const oldQty = holding.quantity;
+      holding.quantity += tx.quantity;
+      holding.avgBuy = ((oldQty * holding.avgBuy) + (tx.quantity * tx.price)) / holding.quantity;
+      holding.value = holding.quantity * holding.currentPrice;
+      saveHoldingToSupabase(tx.userId, holding);
+    } else {
+      holding = {
+        ticker: tx.ticker,
+        company: tx.company,
+        quantity: tx.quantity,
+        avgBuy: tx.price,
+        currentPrice: tx.price,
+        value: tx.quantity * tx.price,
+        gainLoss: 0,
+        gainLossPct: 0
+      };
+      userPortfolio.holdings.push(holding);
+      saveHoldingToSupabase(tx.userId, holding);
+    }
+  } else if (tx.type === 'SELL') {
+    let holding = userPortfolio.holdings.find(h => h.ticker === tx.ticker);
+    if (holding) {
+      holding.quantity -= tx.quantity;
+      if (holding.quantity <= 0) {
+        userPortfolio.holdings = userPortfolio.holdings.filter(h => h.ticker !== tx.ticker);
+        removeHoldingFromSupabase(tx.userId, tx.ticker);
+      } else {
+        holding.value = holding.quantity * holding.currentPrice;
+        saveHoldingToSupabase(tx.userId, holding);
+      }
+    }
+  }
+
+  saveTransactionToSupabase(tx);
 
   res.json({ success: true, message: `Transaction #${tx.id} validée.`, data: tx });
 });
@@ -161,6 +235,8 @@ router.patch('/:id/reject', requireAuth, requireAdmin, (req, res) => {
   tx.rejectionReason = reason || 'Rejeté par l\'administrateur.';
   tx.processedAt = new Date().toISOString();
   tx.processedBy = req.session.userId;
+  
+  saveTransactionToSupabase(tx);
 
   res.json({ success: true, message: `Transaction #${tx.id} rejetée.`, data: tx });
 });

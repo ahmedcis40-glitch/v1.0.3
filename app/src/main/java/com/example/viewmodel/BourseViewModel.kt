@@ -245,7 +245,7 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     // Transaction Actions
-    fun executeDeposit() {
+    fun executeDeposit(context: android.content.Context) {
         val amt = depositAmountInput.value.toDoubleOrNull()
         if (amt == null || amt < 1000) {
             viewModelScope.launch {
@@ -255,10 +255,23 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
         }
 
         viewModelScope.launch {
+            val isWave = depositPaymentMethod.value == "Wave CI"
             val success = repository.depositFunds(amt, depositPaymentMethod.value)
             if (success) {
                 depositAmountInput.value = ""
                 _transactionStatus.emit("Dépôt de ${amt.toInt()} FCFA effectué avec succès !")
+                
+                if (isWave) {
+                    try {
+                        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://pay.wave.com/m/M_ci_XRkfDq_9M8GP/c/ci/?src=p"))
+                        intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                
+                repository.syncTransactions()
                 navigateTo(Screen.DASHBOARD)
             } else {
                 _transactionStatus.emit("Échec du dépôt.")

@@ -294,4 +294,195 @@ const adminStats = {
   },
 };
 
-module.exports = { users, stocks, transactions, portfolios, adminStats };
+// ─── SYNCHRONISATION SUPABASE ──────────────────────────────
+const { supabase } = require('../utils/supabaseClient');
+
+// Charger les données depuis Supabase
+async function syncFromSupabase() {
+  console.log('[Supabase] Synchronisation initiale des données...');
+  try {
+    // 1. Charger les utilisateurs
+    const { data: dbUsers, error: uErr } = await supabase.from('users').select('*');
+    if (!uErr && dbUsers && dbUsers.length > 0) {
+      users.length = 0;
+      dbUsers.forEach(u => {
+        users.push({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          password: u.password,
+          role: u.role,
+          type: u.type,
+          kyc: u.kyc,
+          balance: parseFloat(u.balance || 0),
+          joinedAt: u.joined_at ? u.joined_at.split('T')[0] : '2024-01-01',
+          avatar: u.avatar || 'MK'
+        });
+      });
+      console.log(`[Supabase] ${dbUsers.length} utilisateurs synchronisés.`);
+    }
+
+    // 2. Charger les transactions
+    const { data: dbTx, error: tErr } = await supabase.from('transactions').select('*').order('submitted_at', { ascending: false });
+    if (!tErr && dbTx) {
+      transactions.length = 0;
+      dbTx.forEach(t => {
+        transactions.push({
+          id: t.id,
+          userId: t.user_id,
+          userName: t.user_name,
+          ticker: t.ticker,
+          company: t.company,
+          type: t.type,
+          quantity: t.quantity,
+          price: parseFloat(t.price || 0),
+          total: parseFloat(t.total || 0),
+          fees: parseFloat(t.fees || 0),
+          tva: parseFloat(t.tva || 0),
+          grandTotal: parseFloat(t.grand_total || 0),
+          status: t.status,
+          paymentRef: t.payment_ref,
+          paymentMethod: t.payment_method,
+          rejectionReason: t.rejection_reason,
+          submittedAt: t.submitted_at,
+          processedAt: t.processed_at,
+          processedBy: t.processed_by
+        });
+      });
+      console.log(`[Supabase] ${dbTx.length} transactions synchronisées.`);
+    }
+
+    // 3. Charger les holdings
+    const { data: dbHoldings, error: hErr } = await supabase.from('holdings').select('*');
+    if (!hErr && dbHoldings) {
+      for (let key in portfolios) delete portfolios[key];
+      dbHoldings.forEach(h => {
+        if (!portfolios[h.user_id]) {
+          portfolios[h.user_id] = {
+            userId: h.user_id,
+            totalValue: 0,
+            invested: 0,
+            gainLoss: 0,
+            gainLossPct: 0,
+            dailyChange: 0,
+            dailyChangePct: 0,
+            dividendsReceived: 0,
+            holdings: []
+          };
+        }
+        portfolios[h.user_id].holdings.push({
+          ticker: h.ticker,
+          company: h.company_name,
+          quantity: h.shares_count,
+          avgBuy: parseFloat(h.average_price || 0),
+          currentPrice: parseFloat(h.current_price || 0),
+          value: h.shares_count * parseFloat(h.current_price || 0),
+          gainLoss: h.shares_count * (parseFloat(h.current_price || 0) - parseFloat(h.average_price || 0)),
+          gainLossPct: parseFloat((((parseFloat(h.current_price || 0) - parseFloat(h.average_price || 0)) / parseFloat(h.average_price || 0)) * 100).toFixed(2))
+        });
+      });
+
+      for (const userId in portfolios) {
+        const p = portfolios[userId];
+        p.totalValue = p.holdings.reduce((sum, h) => sum + h.value, 0);
+        p.invested = p.holdings.reduce((sum, h) => sum + h.quantity * h.avgBuy, 0);
+        p.gainLoss = p.totalValue - p.invested;
+        p.gainLossPct = p.invested ? parseFloat(((p.gainLoss / p.invested) * 100).toFixed(2)) : 0.0;
+      }
+      console.log(`[Supabase] Positions de portefeuilles synchronisées.`);
+    }
+  } catch (err) {
+    console.error('[Supabase] Erreur lors de la synchronisation initiale:', err);
+  }
+}
+
+// Lancer la synchronisation initiale
+setTimeout(syncFromSupabase, 500);
+
+// Utilitaires de modification et sauvegarde Supabase
+async function saveUserToSupabase(user) {
+  try {
+    const { error } = await supabase.from('users').upsert({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      role: user.role,
+      type: user.type,
+      kyc: user.kyc,
+      balance: user.balance,
+      avatar: user.avatar
+    });
+    if (error) console.error('[Supabase] Erreur de sauvegarde utilisateur:', error.message);
+  } catch (e) {
+    console.error('[Supabase] Exception sauvegarde utilisateur:', e);
+  }
+}
+
+async function saveTransactionToSupabase(tx) {
+  try {
+    const { error } = await supabase.from('transactions').upsert({
+      id: tx.id,
+      user_id: tx.userId,
+      user_name: tx.userName,
+      ticker: tx.ticker,
+      company: tx.company,
+      type: tx.type,
+      quantity: tx.quantity,
+      price: tx.price,
+      total: tx.total,
+      fees: tx.fees,
+      tva: tx.tva,
+      grand_total: tx.grandTotal,
+      status: tx.status,
+      payment_ref: tx.paymentRef,
+      payment_method: tx.paymentMethod,
+      rejection_reason: tx.rejectionReason,
+      submitted_at: tx.submittedAt || new Date().toISOString(),
+      processed_at: tx.processedAt,
+      processed_by: tx.processedBy
+    });
+    if (error) console.error('[Supabase] Erreur de sauvegarde transaction:', error.message);
+  } catch (e) {
+    console.error('[Supabase] Exception sauvegarde transaction:', e);
+  }
+}
+
+async function saveHoldingToSupabase(userId, holding) {
+  try {
+    const { error } = await supabase.from('holdings').upsert({
+      user_id: userId,
+      ticker: holding.ticker,
+      company_name: holding.company,
+      shares_count: holding.quantity,
+      average_price: holding.avgBuy,
+      current_price: holding.currentPrice,
+      change_percent: holding.gainLossPct,
+      sector: 'Bourse'
+    }, { onConflict: 'user_id,ticker' });
+    if (error) console.error('[Supabase] Erreur de sauvegarde position:', error.message);
+  } catch (e) {
+    console.error('[Supabase] Exception sauvegarde position:', e);
+  }
+}
+
+async function removeHoldingFromSupabase(userId, ticker) {
+  try {
+    const { error } = await supabase.from('holdings').delete().match({ user_id: userId, ticker: ticker });
+    if (error) console.error('[Supabase] Erreur de suppression position:', error.message);
+  } catch (e) {
+    console.error('[Supabase] Exception suppression position:', e);
+  }
+}
+
+module.exports = { 
+  users, 
+  stocks, 
+  transactions, 
+  portfolios, 
+  adminStats,
+  saveUserToSupabase,
+  saveTransactionToSupabase,
+  saveHoldingToSupabase,
+  removeHoldingFromSupabase
+};
