@@ -1,0 +1,57 @@
+========================================================================
+                      BAOU - TECHNOLOGIES ET COMPOSANTS
+========================================================================
+
+Voici la liste complete des technologies, frameworks, outils et architectures
+utilises pour concevoir et faire fonctionner le projet BAOU (v1.0.3) :
+
+------------------------------------------------------------------------
+1. APPLICATION MOBILE (Android Native)
+------------------------------------------------------------------------
+* Langage : Kotlin (100% natif)
+* Interface Utilisateur : Jetpack Compose (Modern toolkit declaratif)
+* Cycle de vie & Architecture : ViewModels, StateFlow, Coroutines
+* Base de donnees locale : Room DB (SQLite abstraction) avec architecture DAO
+* Client Reseau (API HTTP) : Retrofit 2 + Moshi (Parsing JSON)
+* Design : Material Design 3 (Icones, composants graphiques)
+
+------------------------------------------------------------------------
+2. BACKEND (API Express)
+------------------------------------------------------------------------
+* Runtime : Node.js
+* Framework Web : Express.js
+* Integration DB Cloud : SDK Supabase JS (@supabase/supabase-js)
+* Parser CSV : Extraction de fichiers .daily.csv pour les donnees BRVM
+* Sessions : Middleware de gestion de session en memoire
+
+------------------------------------------------------------------------
+3. PORTAIL ADMINISTRATEUR (Web)
+------------------------------------------------------------------------
+* Framework : React.js (Assemble via le build tool Vite)
+* Styling (CSS) : Vanilla CSS
+* Integration : Connecte aux API d'administration locales du backend
+
+------------------------------------------------------------------------
+4. BASE DE DONNEES CLOUD (Supabase)
+------------------------------------------------------------------------
+* Moteur : PostgreSQL (Heberge sur Supabase Cloud)
+* Schemas de Tables :
+  - users : Profils, soldes (balance), mots de passe, kyc.
+  - transactions : Depots Wave, ordres BUY/SELL.
+  - holdings : Actions en portefeuille (SNTS, ORAC, ETI...) avec
+               contrainte d'unicite composite (user_id, ticker).
+
+------------------------------------------------------------------------
+5. INTEGRATION CONTINUE & COMPILATION (CI/CD)
+------------------------------------------------------------------------
+* Outil : GitHub Actions (Fichier .github/workflows/build.yml)
+* Environnement : Ubuntu Runner
+* Java SDK : JDK 17 (Temurin distribution)
+* Outil de build Android : Gradle 9.3.1 (necessaire pour AGP 9.1.1)
+
+------------------------------------------------------------------------
+6. SERVICES EXTERNES
+------------------------------------------------------------------------
+* Wave Mobile Money : Integration de la passerelle de paiement Wave CI.
+* BRVM : Cours reels de cloture de 66 actions ouest-africaines.
+========================================================================
