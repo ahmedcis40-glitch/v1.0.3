@@ -228,6 +228,7 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
                 kycStep = 2 // Move to Identity validation step
             )
             repository.saveUserProfile(updated)
+            repository.updateBackendProfile(firstNameInput.value, lastNameInput.value, "pending")
             onboardingStep.value = 2
         }
     }
@@ -255,9 +256,38 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
             val profile = repository.userProfile.first() ?: return@launch
             val updated = profile.copy(kycStep = 5) // Fully verified
             repository.saveUserProfile(updated)
+            repository.updateBackendProfile(profile.firstName, profile.lastName, "verified")
             _transactionStatus.emit("Inscription validée avec succès !")
             repository.syncTransactions() // Synchroniser après vérification
             navigateTo(Screen.DASHBOARD)
+        }
+    }
+
+    fun performLogout() {
+        viewModelScope.launch {
+            val context = getApplication<Application>().applicationContext
+            val prefs = context.getSharedPreferences("baou_prefs", android.content.Context.MODE_PRIVATE)
+            prefs.edit()
+                .remove("auth_email")
+                .remove("auth_password")
+                .apply()
+
+            val resetProfile = UserEntity(
+                firstName = "",
+                lastName = "",
+                birthDate = "",
+                kycStep = 0,
+                cashBalance = 125000.0,
+                portfolioValue = 14520000.0
+            )
+            repository.saveUserProfile(resetProfile)
+            onboardingStep.value = 1
+            firstNameInput.value = ""
+            lastNameInput.value = ""
+            birthDateInput.value = ""
+            _currentScreen.value = Screen.WELCOME
+            screenHistory.clear()
+            _transactionStatus.emit("Déconnecté avec succès.")
         }
     }
 

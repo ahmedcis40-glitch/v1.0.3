@@ -2865,7 +2865,7 @@ fun ProfileScreen(viewModel: BourseViewModel) {
             }
 
             Button(
-                onClick = { viewModel.resetDemoData() },
+                onClick = { viewModel.performLogout() },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent, contentColor = MaterialTheme.colorScheme.error),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f)),
                 modifier = Modifier

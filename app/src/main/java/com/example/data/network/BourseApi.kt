@@ -52,9 +52,17 @@ data class TransactionNetworkData(
 
 data class TransactionsResponse(val success: Boolean, val count: Int, val data: List<TransactionNetworkData>)
 
+data class UpdateProfileRequest(val firstName: String, val lastName: String, val kycStatus: String)
+
 interface BourseService {
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): LoginResponse
+
+    @POST("auth/update-profile")
+    suspend fun updateProfile(
+        @Header("Authorization") token: String,
+        @Body request: UpdateProfileRequest
+    ): retrofit2.Response<Unit>
 
     @GET("transactions")
     suspend fun getTransactions(@Header("Authorization") token: String): TransactionsResponse

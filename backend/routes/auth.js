@@ -80,4 +80,30 @@ router.get('/me', (req, res) => {
   res.json({ success: true, user: userSafe });
 });
 
+// POST /api/auth/update-profile — Mettre à jour les informations du client connecté
+router.post('/update-profile', (req, res) => {
+  const token = req.headers['authorization']?.replace('Bearer ', '');
+  const session = sessions[token];
+
+  if (!session || session.expiresAt < Date.now()) {
+    return res.status(401).json({ error: 'Session expirée ou invalide.' });
+  }
+
+  const user = users.find(u => u.id === session.userId);
+  if (!user) return res.status(404).json({ error: 'Utilisateur introuvable.' });
+
+  const { firstName, lastName, kycStatus } = req.body;
+  if (firstName && lastName) {
+    user.name = `${firstName} ${lastName}`;
+  }
+  if (kycStatus) {
+    user.kyc = kycStatus;
+  }
+
+  const { saveUserToSupabase } = require('../data/store');
+  saveUserToSupabase(user);
+
+  res.json({ success: true, user });
+});
+
 module.exports = { router, sessions };

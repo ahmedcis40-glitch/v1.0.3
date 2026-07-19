@@ -53,6 +53,20 @@ class BourseRepository(private val bourseDao: BourseDao) {
         }
     }
 
+    suspend fun updateBackendProfile(firstName: String, lastName: String, kycStatus: String): Boolean {
+        val currentToken = token ?: return false
+        return try {
+            val response = com.example.data.network.ApiClient.service.updateProfile(
+                currentToken,
+                com.example.data.network.UpdateProfileRequest(firstName, lastName, kycStatus)
+            )
+            response.isSuccessful
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
     suspend fun syncTransactions(): Boolean {
         val currentToken = token ?: return false
         return try {
