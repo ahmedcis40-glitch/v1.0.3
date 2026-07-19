@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.data.local.*
 import com.example.ui.components.*
 import com.example.ui.theme.*
 import com.example.viewmodel.BourseViewModel
