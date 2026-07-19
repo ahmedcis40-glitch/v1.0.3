@@ -165,14 +165,20 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
 
     init {
         viewModelScope.launch {
+            val context = getApplication<Application>().applicationContext
+            val prefs = context.getSharedPreferences("baou_prefs", android.content.Context.MODE_PRIVATE)
+            
+            // Initialize Base URL before any repository call
+            val savedUrl = prefs.getString("server_url", "http://10.0.2.2:3001/api/") ?: "http://10.0.2.2:3001/api/"
+            serverUrlInput.value = savedUrl
+            com.example.data.network.ApiClient.updateBaseUrl(savedUrl)
+
             // Seed database if empty
             repository.initializeDefaultData()
             
             // Check if user is already signed up and verified to auto-skip splash
             val profile = repository.userProfile.first()
             if (profile != null && profile.kycStep >= 5) {
-                val context = getApplication<Application>().applicationContext
-                val prefs = context.getSharedPreferences("baou_prefs", android.content.Context.MODE_PRIVATE)
                 val savedEmail = prefs.getString("auth_email", "") ?: ""
                 val savedPassword = prefs.getString("auth_password", "") ?: ""
                 if (savedEmail.isNotEmpty() && savedPassword.isNotEmpty()) {
