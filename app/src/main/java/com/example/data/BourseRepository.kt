@@ -158,31 +158,12 @@ class BourseRepository(private val bourseDao: BourseDao) {
                 lastName = "",
                 birthDate = "",
                 kycStep = 0,
-                cashBalance = 125000.0,
-                portfolioValue = 1450000.0,
-                isPremium = true,
-                membershipDate = "Janvier 2023"
+                cashBalance = 0.0,
+                portfolioValue = 0.0,
+                isPremium = false,
+                membershipDate = ""
             )
             bourseDao.insertUserProfile(defaultUser)
-
-            val initialHoldings = listOf(
-                HoldingsEntity("SNTS", "Sonatel", 450, 16200.0, 16200.0, 2.45, "Télécoms"),
-                HoldingsEntity("ETI", "Ecobank Transnational", 120000, 18.0, 18.0, 1.12, "Banque"),
-                HoldingsEntity("ORAC", "Orange CI", 200, 10450.0, 10450.0, -0.85, "Télécoms")
-            )
-            for (holding in initialHoldings) {
-                bourseDao.insertHolding(holding)
-            }
-
-            val initialTransactions = listOf(
-                TransactionEntity(type = "BUY", title = "Achat Sonatel CI", date = "Aujourd'hui, 14:20", reference = "SN-8291", status = "TERMINÉ", amount = -45000.0, sharesQty = 12, stockTicker = "SNTS"),
-                TransactionEntity(type = "DEPOSIT", title = "Dépôt Orange Money", date = "Aujourd'hui, 09:15", reference = "Portefeuille", status = "TERMINÉ", amount = 150000.0),
-                TransactionEntity(type = "SELL", title = "Vente BOA Bénin", date = "Hier, 16:45", reference = "BJ-4421", status = "TERMINÉ", amount = 82500.0, sharesQty = 15, stockTicker = "BOAB"),
-                TransactionEntity(type = "BUY", title = "Achat Onatel BF", date = "Hier, 11:30", reference = "BF-1102", status = "EN ATTENTE", amount = -12400.0, sharesQty = 4, stockTicker = "ONAB")
-            )
-            for (tx in initialTransactions) {
-                bourseDao.insertTransaction(tx)
-            }
         }
     }
 
