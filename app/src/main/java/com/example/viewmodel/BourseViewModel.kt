@@ -102,6 +102,8 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
     val firstNameInput = MutableStateFlow("")
     val lastNameInput = MutableStateFlow("")
     val birthDateInput = MutableStateFlow("")
+    val professionInput = MutableStateFlow("")
+    val residenceInput = MutableStateFlow("Abidjan, Côte d'Ivoire")
     val onboardingStep = MutableStateFlow(1) // 1 = Personal Details, 2 = Biometrics KYC, 3 = Proof of Address
 
     // SMS contract validation variables

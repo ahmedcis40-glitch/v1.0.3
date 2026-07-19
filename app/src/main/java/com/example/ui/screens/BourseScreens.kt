@@ -798,6 +798,9 @@ fun OnboardingScreen(viewModel: BourseViewModel) {
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
+                        val profession by viewModel.professionInput.collectAsStateWithLifecycle()
+                        val residence by viewModel.residenceInput.collectAsStateWithLifecycle()
+
                         OutlinedTextField(
                             value = firstName,
                             onValueChange = { viewModel.firstNameInput.value = it },
@@ -833,6 +836,30 @@ fun OnboardingScreen(viewModel: BourseViewModel) {
                             singleLine = true,
                             shape = RoundedCornerShape(10.dp),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        )
+
+                        OutlinedTextField(
+                            value = profession,
+                            onValueChange = { viewModel.professionInput.value = it },
+                            label = { Text("Profession / Secteur d'activité") },
+                            placeholder = { Text("ex: Ingénieur, Commerçant...") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("profession_input"),
+                            singleLine = true,
+                            shape = RoundedCornerShape(10.dp)
+                        )
+
+                        OutlinedTextField(
+                            value = residence,
+                            onValueChange = { viewModel.residenceInput.value = it },
+                            label = { Text("Ville & Pays de résidence") },
+                            placeholder = { Text("ex: Abidjan, Côte d'Ivoire") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("residence_input"),
+                            singleLine = true,
+                            shape = RoundedCornerShape(10.dp)
                         )
 
                         Button(
@@ -1367,23 +1394,72 @@ fun DashboardScreen(viewModel: BourseViewModel) {
         val isVerified = userProfile != null && userProfile!!.kycStep >= 5
         if (!isVerified) {
             Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.08f)),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.3f)),
-                modifier = Modifier.fillMaxWidth()
+                colors = CardDefaults.cardColors(containerColor = OrangeBrand.copy(alpha = 0.08f)),
+                border = BorderStroke(1.5.dp, OrangeBrand.copy(alpha = 0.4f)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { viewModel.navigateTo(Screen.ONBOARDING) },
+                shape = RoundedCornerShape(16.dp)
             ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.error)
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Accès Limité - Validation Requise", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error, fontSize = 14.sp)
-                        Text(
-                            text = "Votre inscription est en attente de validation par l'administration. Les dépôts et achats d'actions sont verrouillés pour l'instant.",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(OrangeBrand.copy(alpha = 0.15f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.Assignment, contentDescription = null, tint = OrangeBrand)
+                        }
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                "Ouverture de Compte SGI BRVM à distance",
+                                fontWeight = FontWeight.Bold,
+                                color = OrangeBrand,
+                                fontSize = 15.sp
+                            )
+                            Text(
+                                "Ouvrez votre compte titres auprès d'une SGI agréée depuis chez vous.",
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    HorizontalDivider(color = OrangeBrand.copy(alpha = 0.2f))
+
+                    Text("Éléments du dossier (100% en ligne, sans RIB) :", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = ForestGreen, modifier = Modifier.size(16.dp))
+                        Text("Identité, Profession & WhatsApp", fontSize = 11.sp)
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = ForestGreen, modifier = Modifier.size(16.dp))
+                        Text("Pièce d'Identité (CNI / Passeport)", fontSize = 11.sp)
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = ForestGreen, modifier = Modifier.size(16.dp))
+                        Text("Justificatif de domicile (CIE, SODECI)", fontSize = 11.sp)
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = ForestGreen, modifier = Modifier.size(16.dp))
+                        Text("Signature numérique du Contrat SGI", fontSize = 11.sp)
+                    }
+
+                    Button(
+                        onClick = { viewModel.navigateTo(Screen.ONBOARDING) },
+                        modifier = Modifier.fillMaxWidth().height(42.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = OrangeBrand),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text("Compléter mon dossier SGI", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(16.dp))
                     }
                 }
             }
