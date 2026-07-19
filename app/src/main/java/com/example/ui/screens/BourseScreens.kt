@@ -173,6 +173,45 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
     val showServerUrlSettings by viewModel.showServerUrlSettings.collectAsStateWithLifecycle()
     val serverUrlInput by viewModel.serverUrlInput.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    
+    val launcher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            val accountName = result.data?.getStringExtra(android.accounts.AccountManager.KEY_ACCOUNT_NAME)
+            if (accountName != null) {
+                viewModel.performLogin(accountName, "password123") { success ->
+                    if (success) {
+                        viewModel.syncWithBackend()
+                        val profile = viewModel.userProfile.value
+                        if (profile != null && profile.kycStep >= 5) {
+                            viewModel.navigateTo(Screen.DASHBOARD)
+                        } else {
+                            viewModel.navigateTo(Screen.ONBOARDING)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    val triggerRealGoogleChooser = {
+        try {
+            val intent = android.accounts.AccountManager.newChooseAccountIntent(
+                null,
+                null,
+                arrayOf("com.google"),
+                null,
+                null,
+                null,
+                null
+            )
+            launcher.launch(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            viewModel.showGoogleAccountChooser.value = true
+        }
+    }
 
     if (showServerUrlSettings) {
         androidx.compose.ui.window.Dialog(
@@ -248,6 +287,12 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
     }
 
     if (showGoogleChooser) {
+        var emailInput by remember { mutableStateOf("") }
+        var passwordInput by remember { mutableStateOf("") }
+        var passwordVisible by remember { mutableStateOf(false) }
+        var isLoading by remember { mutableStateOf(false) }
+        var errorMsg by remember { mutableStateOf("") }
+
         androidx.compose.ui.window.Dialog(
             onDismissRequest = { viewModel.showGoogleAccountChooser.value = false }
         ) {
@@ -255,7 +300,7 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 8.dp),
                 shape = RoundedCornerShape(28.dp),
                 color = Color.White,
                 tonalElevation = 6.dp
@@ -263,132 +308,139 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(24.dp),
+                        .padding(28.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    // Logo BAOU
+                    Box(
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(Color(0xFFFF8200)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("B", fontSize = 28.sp, fontWeight = FontWeight.Black, color = Color.White)
+                    }
+
                     Text(
-                        text = "G o o g l e",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.DarkGray,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    
-                    Text(
-                        text = "Choisissez un compte",
+                        text = "Connexion • BAOU Finance",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1F1F1F)
-                    )
-                    
-                    Text(
-                        text = "pour continuer vers l'application BAOU",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF444746),
+                        color = Color(0xFF1F1F1F),
                         textAlign = TextAlign.Center
                     )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    val accounts = listOf(
-                        Triple("mamadou.konate@email.ci", "Mamadou Konaté", Color(0xFF1A73E8)),
-                        Triple("a.diop@email.sn", "Amadou Diop", Color(0xFF34A853)),
-                        Triple("k.coulibaly@email.ci", "Kofi Coulibaly (Suspendu)", Color(0xFFEA4335))
+                    Text(
+                        text = "Entrez votre email. Un compte sera créé automatiquement si vous êtes nouveau.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(0xFF666666),
+                        textAlign = TextAlign.Center,
+                        lineHeight = 16.sp
                     )
-                    
-                    Column(
+
+                    OutlinedTextField(
+                        value = emailInput,
+                        onValueChange = { emailInput = it; errorMsg = "" },
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        accounts.forEach { account ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .clickable {
-                                        viewModel.showGoogleAccountChooser.value = false
-                                        viewModel.performLogin(account.first, "password123") { success ->
-                                            if (success) {
-                                                // Recharger les données depuis le serveur après connexion Google
-                                                viewModel.syncWithBackend()
-                                                if (viewModel.userProfile.value != null && viewModel.userProfile.value!!.kycStep >= 5) {
-                                                    viewModel.navigateTo(Screen.DASHBOARD)
-                                                } else {
-                                                    viewModel.navigateTo(Screen.ONBOARDING)
-                                                }
-                                            }
-                                        }
-                                    }
-                                    .padding(vertical = 12.dp, horizontal = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clip(RoundedCornerShape(percent = 50))
-                                        .background(account.third),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = account.second.first().toString(),
-                                        color = Color.White,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 18.sp
-                                    )
-                                }
-                                
-                                Spacer(modifier = Modifier.width(16.dp))
-                                
-                                Column {
-                                    Text(
-                                        text = account.second,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 14.sp,
-                                        color = Color(0xFF1F1F1F)
-                                    )
-                                    Text(
-                                        text = account.first,
-                                        fontSize = 12.sp,
-                                        color = Color(0xFF444746)
-                                    )
-                                }
+                        label = { Text("Adresse e-mail") },
+                        leadingIcon = { Icon(Icons.Default.Mail, contentDescription = null, tint = Color(0xFFFF8200)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = passwordInput,
+                        onValueChange = { passwordInput = it; errorMsg = "" },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Mot de passe") },
+                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFFFF8200)) },
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = null,
+                                    tint = Color(0xFF999999)
+                                )
                             }
-                            HorizontalDivider(color = Color(0xFFF1F3F4))
+                        },
+                        visualTransformation = if (passwordVisible)
+                            androidx.compose.ui.text.input.VisualTransformation.None
+                        else
+                            androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    if (errorMsg.isNotEmpty()) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color(0xFFFFEDED))
+                                .padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(Icons.Default.Error, contentDescription = null, tint = Color(0xFFCC0000), modifier = Modifier.size(18.dp))
+                            Text(errorMsg, fontSize = 12.sp, color = Color(0xFFCC0000))
                         }
                     }
-                    
-                    Row(
+
+                    Button(
+                        onClick = {
+                            if (emailInput.isBlank() || passwordInput.isBlank()) {
+                                errorMsg = "Veuillez remplir tous les champs."
+                                return@Button
+                            }
+                            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(emailInput.trim()).matches()) {
+                                errorMsg = "Adresse e-mail invalide."
+                                return@Button
+                            }
+                            if (passwordInput.length < 6) {
+                                errorMsg = "Le mot de passe doit faire au moins 6 caractères."
+                                return@Button
+                            }
+                            isLoading = true
+                            viewModel.showGoogleAccountChooser.value = false
+                            viewModel.performLogin(emailInput.trim(), passwordInput) { success ->
+                                isLoading = false
+                                if (success) {
+                                    viewModel.syncWithBackend()
+                                    val profile = viewModel.userProfile.value
+                                    if (profile != null && profile.kycStep >= 5) {
+                                        viewModel.navigateTo(Screen.DASHBOARD)
+                                    } else {
+                                        viewModel.navigateTo(Screen.ONBOARDING)
+                                    }
+                                } else {
+                                    viewModel.showGoogleAccountChooser.value = true
+                                    errorMsg = "Connexion échouée. Vérifiez vos identifiants."
+                                }
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { }
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .height(50.dp),
+                        enabled = !isLoading,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF8200)),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = null,
-                            tint = Color(0xFF444746),
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(
-                            text = "Utiliser un autre compte",
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 14.sp,
-                            color = Color(0xFF444746)
-                        )
+                        if (isLoading) {
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
+                        } else {
+                            Text("Connexion • S'inscrire", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        }
                     }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     Text(
-                        text = "Pour continuer, Google partagera votre nom, votre adresse e-mail, votre photo de profil et votre langue avec BAOU.",
+                        text = "Pas encore de compte ? Entrez votre email et un mot de passe pour créer votre compte automatiquement.",
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 11.sp,
-                        color = Color(0xFF747775),
+                        color = Color(0xFF999999),
                         textAlign = TextAlign.Center,
-                        lineHeight = 14.sp
+                        lineHeight = 15.sp
                     )
                 }
             }
@@ -459,7 +511,7 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
             // Google login simulation
             Button(
                 onClick = {
-                    viewModel.showGoogleAccountChooser.value = true
+                    triggerRealGoogleChooser()
                 },
                 modifier = Modifier
                     .fillMaxWidth()

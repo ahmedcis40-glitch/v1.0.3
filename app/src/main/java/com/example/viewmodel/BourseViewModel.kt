@@ -137,6 +137,12 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             val result = repository.login(email, password)
             if (result == "SUCCESS") {
+                val context = getApplication<Application>().applicationContext
+                val prefs = context.getSharedPreferences("baou_prefs", android.content.Context.MODE_PRIVATE)
+                prefs.edit()
+                    .putString("auth_email", email)
+                    .putString("auth_password", password)
+                    .apply()
                 _transactionStatus.emit("Connecté au serveur Express local !")
                 onComplete(true)
             } else {
@@ -165,8 +171,15 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
             // Check if user is already signed up and verified to auto-skip splash
             val profile = repository.userProfile.first()
             if (profile != null && profile.kycStep >= 5) {
-                // Essayer de reconnecter en arrière plan pour synchroniser
-                repository.login("mamadou.konate@email.ci", "password123")
+                val context = getApplication<Application>().applicationContext
+                val prefs = context.getSharedPreferences("baou_prefs", android.content.Context.MODE_PRIVATE)
+                val savedEmail = prefs.getString("auth_email", "") ?: ""
+                val savedPassword = prefs.getString("auth_password", "") ?: ""
+                if (savedEmail.isNotEmpty() && savedPassword.isNotEmpty()) {
+                    repository.login(savedEmail, savedPassword)
+                } else {
+                    repository.login("mamadou.konate@email.ci", "password123")
+                }
                 _currentScreen.value = Screen.DASHBOARD
             }
         }
