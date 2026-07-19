@@ -5,7 +5,6 @@ import {
   LayoutDashboard, 
   ArrowLeftRight, 
   Users, 
-  Activity, 
   Settings, 
   HelpCircle, 
   LogOut 
@@ -33,11 +32,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   }
 }) => {
   const menuItems = [
-    { id: Page.Dashboard, label: 'Dashboard', icon: LayoutDashboard },
+    { id: Page.Dashboard, label: 'Tableau de bord', icon: LayoutDashboard },
     { id: Page.Transactions, label: 'Transactions', icon: ArrowLeftRight },
-    { id: Page.UserManagement, label: 'User Management', icon: Users },
-    { id: Page.MarketMonitoring, label: 'Market Monitoring', icon: Activity },
-    { id: Page.Settings, label: 'Settings', icon: Settings },
+    { id: Page.UserManagement, label: 'Clients', icon: Users },
+    { id: Page.Settings, label: 'Paramètres', icon: Settings },
   ];
 
   return (

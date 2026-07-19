@@ -2,7 +2,6 @@ export enum Page {
   Dashboard = 'Dashboard',
   Transactions = 'Transactions',
   UserManagement = 'UserManagement',
-  MarketMonitoring = 'MarketMonitoring',
   Settings = 'Settings',
   Support = 'Support'
 }
