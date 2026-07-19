@@ -282,7 +282,15 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
                 kycStep = 2 // Move to Identity validation step
             )
             repository.saveUserProfile(updated)
-            repository.updateBackendProfile(firstNameInput.value, lastNameInput.value, "pending", whatsappInput.value)
+            repository.updateBackendProfile(
+                firstNameInput.value,
+                lastNameInput.value,
+                "pending",
+                whatsappInput.value,
+                birthDateInput.value,
+                professionInput.value,
+                residenceInput.value
+            )
             onboardingStep.value = 2
         }
     }
@@ -373,6 +381,14 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
 
     // Transaction Actions
     fun executeDeposit(context: android.content.Context) {
+        val profile = userProfile.value
+        if (profile == null || profile.kycStep < 5) {
+            viewModelScope.launch {
+                _transactionStatus.emit("Action verrouillée : Votre dossier est en cours de validation par l'admin. Vous pourrez effectuer des dépôts dès sa validation.")
+            }
+            return
+        }
+
         val amt = depositAmountInput.value.toDoubleOrNull()
         if (amt == null || amt < 1000) {
             viewModelScope.launch {
@@ -407,6 +423,14 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun executeOrder() {
+        val profile = userProfile.value
+        if (profile == null || profile.kycStep < 5) {
+            viewModelScope.launch {
+                _transactionStatus.emit("Action verrouillée : Votre dossier est en cours de validation par l'admin. Vous pourrez acheter des actions dès sa validation.")
+            }
+            return
+        }
+
         val qty = orderQuantity.value.toIntOrNull() ?: 0
         if (qty <= 0) {
             viewModelScope.launch { _transactionStatus.emit("Veuillez saisir une quantité valide.") }

@@ -268,11 +268,14 @@ async function removeHoldingFromSupabase(userId, ticker) {
   }
 }
 
+const chatMessages = {};
+
 module.exports = { 
   users, 
   stocks, 
   transactions, 
   tickets,
+  chatMessages,
   portfolios, 
   adminStats,
   saveUserToSupabase,

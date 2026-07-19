@@ -51,6 +51,13 @@ export interface User {
   kycStatus: 'VERIFIED' | 'PENDING' | 'REJECTED';
   lastActivityDate: string;
   lastActivityPlatform: string;
+  birthDate?: string;
+  profession?: string;
+  residence?: string;
+  whatsapp?: string;
+  identityDocStatus?: string;
+  proofOfAddressStatus?: string;
+  signatureStatus?: string;
 }
 
 export interface SupportTicket {

@@ -40,6 +40,13 @@ function mapUser(u: any): User {
       ? new Date(u.joinedAt).toLocaleDateString('fr-FR')
       : 'Aujourd\'hui',
     lastActivityPlatform: 'App Android',
+    birthDate: u.birthDate || 'Non renseignée',
+    profession: u.profession || 'Non renseignée',
+    residence: u.residence || 'Abidjan, Côte d\'Ivoire',
+    whatsapp: u.whatsapp || 'Non renseigné',
+    identityDocStatus: u.identityDocStatus || 'Présent (CNI / Passeport)',
+    proofOfAddressStatus: u.proofOfAddressStatus || 'Présent (Facture CIE / SODECI)',
+    signatureStatus: u.signatureStatus || 'Contrat SGI Signé Numériquement',
   };
 }
 

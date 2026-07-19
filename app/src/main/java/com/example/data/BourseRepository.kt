@@ -54,12 +54,28 @@ class BourseRepository(private val bourseDao: BourseDao) {
         }
     }
 
-    suspend fun updateBackendProfile(firstName: String, lastName: String, kycStatus: String, whatsapp: String? = null): Boolean {
+    suspend fun updateBackendProfile(
+        firstName: String,
+        lastName: String,
+        kycStatus: String,
+        whatsapp: String? = null,
+        birthDate: String? = null,
+        profession: String? = null,
+        residence: String? = null
+    ): Boolean {
         val currentToken = token ?: return false
         return try {
             val response = com.example.data.network.ApiClient.service.updateProfile(
                 currentToken,
-                com.example.data.network.UpdateProfileRequest(firstName, lastName, kycStatus, whatsapp)
+                com.example.data.network.UpdateProfileRequest(
+                    firstName,
+                    lastName,
+                    kycStatus,
+                    whatsapp,
+                    birthDate,
+                    profession,
+                    residence
+                )
             )
             response.isSuccessful
         } catch (e: Exception) {

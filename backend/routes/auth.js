@@ -111,7 +111,7 @@ router.post('/update-profile', (req, res) => {
   const user = users.find(u => u.id === session.userId);
   if (!user) return res.status(404).json({ error: 'Utilisateur introuvable.' });
 
-  const { firstName, lastName, kycStatus, whatsapp } = req.body;
+  const { firstName, lastName, kycStatus, whatsapp, birthDate, profession, residence } = req.body;
   if (firstName && lastName) {
     user.name = `${firstName} ${lastName}`;
   }
@@ -121,6 +121,12 @@ router.post('/update-profile', (req, res) => {
   if (whatsapp) {
     user.whatsapp = whatsapp;
   }
+  if (birthDate) user.birthDate = birthDate;
+  if (profession) user.profession = profession;
+  if (residence) user.residence = residence;
+  user.identityDocStatus = 'Présent (CNI / Passeport)';
+  user.proofOfAddressStatus = 'Présent (Facture CIE / SODECI)';
+  user.signatureStatus = 'Contrat SGI Signé Numériquement';
 
   const { saveUserToSupabase } = require('../data/store');
   saveUserToSupabase(user);
@@ -177,6 +183,51 @@ router.get('/support', (req, res) => {
   const userTickets = tickets.filter(t => t.clientId === user.email);
 
   res.json({ success: true, data: userTickets });
+});
+
+// POST /api/auth/chat — Envoyer un message au tchat en direct avec l'admin
+router.post('/chat', (req, res) => {
+  const token = req.headers['authorization']?.replace('Bearer ', '');
+  const session = sessions[token];
+  if (!session || session.expiresAt < Date.now()) {
+    return res.status(401).json({ error: 'Session expirée.' });
+  }
+
+  const user = users.find(u => u.id === session.userId);
+  if (!user) return res.status(404).json({ error: 'Utilisateur introuvable.' });
+
+  const { text } = req.body;
+  if (!text) return res.status(400).json({ error: 'Message vide.' });
+
+  const { chatMessages } = require('../data/store');
+  const msg = {
+    id: `MSG-${Date.now()}`,
+    userId: user.id,
+    userEmail: user.email,
+    userName: user.name,
+    sender: 'CLIENT',
+    text: text,
+    timestamp: new Date().toISOString(),
+    time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+  };
+
+  if (!chatMessages[user.id]) chatMessages[user.id] = [];
+  chatMessages[user.id].push(msg);
+
+  res.status(201).json({ success: true, data: msg });
+});
+
+// GET /api/auth/chat — Récupérer la discussion du tchat
+router.get('/chat', (req, res) => {
+  const token = req.headers['authorization']?.replace('Bearer ', '');
+  const session = sessions[token];
+  if (!session || session.expiresAt < Date.now()) {
+    return res.status(401).json({ error: 'Session expirée.' });
+  }
+
+  const { chatMessages } = require('../data/store');
+  const messages = chatMessages[session.userId] || [];
+  res.json({ success: true, data: messages });
 });
 
 module.exports = { router, sessions };

@@ -33,6 +33,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
   const [kycFilter, setKycFilter] = useState('');
   const [accountFilter, setAccountFilter] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedUserForDetails, setSelectedUserForDetails] = useState<User | null>(null);
 
   // Form states for new user
   const [newUserName, setNewUserName] = useState('');
@@ -410,8 +411,11 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                             Réactiver
                           </button>
                         )}
-                        <button className="px-3 py-1 bg-[#eff4ff] hover:bg-[#ffdcc6]/40 text-[#954a00] font-sans font-bold text-[12px] rounded-lg transition-all active:scale-95 shadow-xs">
-                          Détails
+                        <button 
+                          onClick={() => setSelectedUserForDetails(user)}
+                          className="px-3 py-1 bg-[#eff4ff] hover:bg-[#ffdcc6]/40 text-[#954a00] font-sans font-bold text-[12px] rounded-lg transition-all active:scale-95 shadow-xs"
+                        >
+                          Détails Dossier SGI
                         </button>
                       </div>
                     </td>
@@ -425,23 +429,206 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
         {/* Pagination Footer */}
         <div className="bg-[#f8f9ff] p-4 flex flex-col sm:flex-row justify-between items-center text-[12px] text-[#574235]/80 font-sans font-medium border-t border-[#dec1af]/20 gap-4">
           <p>
-            Affichage de 1 à {filteredUsers.length} sur {filteredUsers.length + 12837} utilisateurs
+            Affichage de 1 à {filteredUsers.length} utilisateurs
           </p>
           <div className="flex items-center gap-2">
             <button className="p-2 border border-[#dec1af]/30 rounded-lg hover:bg-white text-[#574235]/60 disabled:opacity-50" disabled>
               <ChevronLeft className="w-4.5 h-4.5" />
             </button>
             <button className="w-8 h-8 rounded-lg bg-[#ff8200] text-white font-sans font-bold text-[12px]">1</button>
-            <button className="w-8 h-8 rounded-lg hover:bg-white text-[#0b1c30] border border-[#dec1af]/15 font-sans font-bold text-[12px]">2</button>
-            <button className="w-8 h-8 rounded-lg hover:bg-white text-[#0b1c30] border border-[#dec1af]/15 font-sans font-bold text-[12px]">3</button>
-            <span className="px-1 text-[#574235]/60 font-sans font-bold text-[12px]">...</span>
-            <button className="w-8 h-8 rounded-lg hover:bg-white text-[#0b1c30] border border-[#dec1af]/15 font-sans font-bold text-[12px]">128</button>
             <button className="p-2 border border-[#dec1af]/30 rounded-lg hover:bg-white text-[#574235]/60">
               <ChevronRight className="w-4.5 h-4.5" />
             </button>
           </div>
         </div>
       </div>
+
+      {/* SGI Dossier Inspection Modal for Admin */}
+      {selectedUserForDetails && (
+        <div className="fixed inset-0 bg-[#0b1c30]/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl border border-[#dec1af]/30 overflow-hidden max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-[#dec1af]/25 flex justify-between items-center bg-[#f8f9ff]">
+              <div>
+                <h3 className="font-sans font-bold text-[18px] text-[#0b1c30] flex items-center gap-2">
+                  <ShieldCheck className="text-[#ff8200] w-5 h-5" />
+                  Dossier d'Ouverture de Compte SGI — {selectedUserForDetails.name}
+                </h3>
+                <p className="font-sans text-[12px] text-[#574235]/70 mt-0.5">
+                  ID Client: {selectedUserForDetails.id} · Inscription: {selectedUserForDetails.lastActivityDate}
+                </p>
+              </div>
+              <button 
+                onClick={() => setSelectedUserForDetails(null)}
+                className="text-[#574235] hover:bg-gray-100 rounded-full p-1.5 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto space-y-6 font-sans text-[13px]">
+              
+              {/* Section 1: Informations Personnelles & État Civil */}
+              <div className="bg-[#f8f9ff] p-4 rounded-xl border border-[#dec1af]/25 space-y-3">
+                <h4 className="font-bold text-[12px] text-[#ff8200] uppercase tracking-wider">
+                  1. État Civil & Contact Client
+                </h4>
+                <div className="grid grid-cols-2 gap-4 text-[#0b1c30]">
+                  <div>
+                    <span className="text-[#574235]/70 text-[11px] block font-semibold">Nom Complet</span>
+                    <span className="font-bold text-[14px]">{selectedUserForDetails.name}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#574235]/70 text-[11px] block font-semibold">Adresse Email</span>
+                    <span className="font-semibold">{selectedUserForDetails.email}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#574235]/70 text-[11px] block font-semibold">Date de Naissance</span>
+                    <span className="font-medium">{selectedUserForDetails.birthDate || 'Non spécifiée'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#574235]/70 text-[11px] block font-semibold">Profession / Secteur</span>
+                    <span className="font-medium">{selectedUserForDetails.profession || 'Non renseignée'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#574235]/70 text-[11px] block font-semibold">Ville & Pays de Résidence</span>
+                    <span className="font-medium">{selectedUserForDetails.residence || 'Abidjan, Côte d\'Ivoire'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[#574235]/70 text-[11px] block font-semibold">Numéro WhatsApp</span>
+                    <span className="font-bold text-emerald-700">{selectedUserForDetails.whatsapp || 'Non renseigné'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 2: Pièces du Dossier SGI à Vérifier */}
+              <div className="space-y-3">
+                <h4 className="font-bold text-[12px] text-[#0b1c30] uppercase tracking-wider">
+                  2. Pièces Justificatives du Dossier SGI BRVM
+                </h4>
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between p-3 border border-[#dec1af]/30 rounded-xl bg-white">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+                        🪪
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#0b1c30]">Pièce d'Identité officielle</p>
+                        <p className="text-[11px] text-[#574235]/70">CNI ivoirienne ou Passeport valide (Scan HD)</p>
+                      </div>
+                    </div>
+                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold text-[11px] rounded-full">
+                      {selectedUserForDetails.identityDocStatus || 'Présent ✅'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 border border-[#dec1af]/30 rounded-xl bg-white">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+                        🏡
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#0b1c30]">Justificatif de Domicile</p>
+                        <p className="text-[11px] text-[#574235]/70">Facture CIE / SODECI de moins de 3 mois</p>
+                      </div>
+                    </div>
+                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold text-[11px] rounded-full">
+                      {selectedUserForDetails.proofOfAddressStatus || 'Présent ✅'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 border border-[#dec1af]/30 rounded-xl bg-white">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+                        ✍️
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#0b1c30]">Signature & Contrat SGI BRVM</p>
+                        <p className="text-[11px] text-[#574235]/70">Signé électroniquement (Horodatage conforme AMF)</p>
+                      </div>
+                    </div>
+                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold text-[11px] rounded-full">
+                      {selectedUserForDetails.signatureStatus || 'Signé ✅'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 border border-[#dec1af]/20 rounded-xl bg-gray-50 opacity-70">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-gray-200 text-gray-600 flex items-center justify-center font-bold">
+                        💳
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-700">Coordonnées Bancaires (RIB)</p>
+                        <p className="text-[11px] text-gray-500">Exclu du dossier (Conforme aux spécifications)</p>
+                      </div>
+                    </div>
+                    <span className="px-2.5 py-1 bg-gray-200 text-gray-700 font-bold text-[11px] rounded-full">
+                      Non Requis
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 3: Statut Actuel & Décision Admin */}
+              <div className="pt-4 border-t border-[#dec1af]/25 flex items-center justify-between">
+                <div>
+                  <span className="text-[#574235]/70 text-[11px] block">Statut Actuel du Client</span>
+                  {getKycBadge(selectedUserForDetails.kycStatus)}
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  {selectedUserForDetails.kycStatus === 'PENDING' && (
+                    <>
+                      <button
+                        onClick={() => {
+                          onUpdateKyc(selectedUserForDetails.id, 'REJECTED');
+                          setSelectedUserForDetails(null);
+                        }}
+                        className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-800 font-bold text-[12px] rounded-xl transition-all"
+                      >
+                        Rejeter le Dossier
+                      </button>
+                      <button
+                        onClick={() => {
+                          onUpdateKyc(selectedUserForDetails.id, 'VERIFIED');
+                          setSelectedUserForDetails(null);
+                        }}
+                        className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[12px] rounded-xl shadow-md transition-all"
+                      >
+                        Valider & Activer le Compte
+                      </button>
+                    </>
+                  )}
+                  {selectedUserForDetails.kycStatus === 'VERIFIED' && (
+                    <button
+                      onClick={() => {
+                        onToggleSuspend(selectedUserForDetails.id);
+                        setSelectedUserForDetails(null);
+                      }}
+                      className="px-4 py-2 bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold text-[12px] rounded-xl transition-all"
+                    >
+                      Suspendre le Compte
+                    </button>
+                  )}
+                  {selectedUserForDetails.kycStatus === 'REJECTED' && (
+                    <button
+                      onClick={() => {
+                        onToggleSuspend(selectedUserForDetails.id);
+                        setSelectedUserForDetails(null);
+                      }}
+                      className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold text-[12px] rounded-xl transition-all"
+                    >
+                      Réactiver le Compte
+                    </button>
+                  )}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

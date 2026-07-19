@@ -52,7 +52,15 @@ data class TransactionNetworkData(
 
 data class TransactionsResponse(val success: Boolean, val count: Int, val data: List<TransactionNetworkData>)
 
-data class UpdateProfileRequest(val firstName: String, val lastName: String, val kycStatus: String, val whatsapp: String? = null)
+data class UpdateProfileRequest(
+    val firstName: String,
+    val lastName: String,
+    val kycStatus: String,
+    val whatsapp: String? = null,
+    val birthDate: String? = null,
+    val profession: String? = null,
+    val residence: String? = null
+)
 
 data class RegisterRequest(val email: String, val password: String, val firstName: String)
 

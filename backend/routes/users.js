@@ -118,4 +118,36 @@ router.patch('/support/:id/status', requireAuth, requireAdmin, (req, res) => {
   res.json({ success: true, message: `Ticket ${ticket.id} mis à jour: ${status}`, data: ticket });
 });
 
+// GET /api/admin/chat/:userId — Admin: Récupérer l'historique de tchat d'un client
+router.get('/chat/:userId', requireAuth, requireAdmin, (req, res) => {
+  const { chatMessages } = require('../data/store');
+  const messages = chatMessages[req.params.userId] || [];
+  res.json({ success: true, data: messages });
+});
+
+// POST /api/admin/chat/:userId — Admin: Envoyer un message de réponse au client
+router.post('/chat/:userId', requireAuth, requireAdmin, (req, res) => {
+  const { text } = req.body;
+  if (!text) return res.status(400).json({ error: 'Message vide.' });
+
+  const { chatMessages, users } = require('../data/store');
+  const userId = req.params.userId;
+  const user = users.find(u => u.id === userId);
+
+  const msg = {
+    id: `MSG-${Date.now()}`,
+    userId: userId,
+    userName: user?.name || 'Client',
+    sender: 'ADMIN',
+    text: text,
+    timestamp: new Date().toISOString(),
+    time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+  };
+
+  if (!chatMessages[userId]) chatMessages[userId] = [];
+  chatMessages[userId].push(msg);
+
+  res.status(201).json({ success: true, data: msg });
+});
+
 module.exports = router;
