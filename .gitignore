@@ -1,35 +1,22 @@
-# Dépendances Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Variables d'environnement
-.env
-.env.local
-.env.production
-
-# Logs
-logs/
-*.log
-
-# OS
+*.iml
+.gradle
+.kotlin
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
 .DS_Store
-Thumbs.db
-desktop.ini
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+.env
+debug.keystore
 
-# IDE
-.vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-
-# Build
+# Node.js dependencies
+node_modules/
 dist/
-build/
-
-# Cache
-.cache/
-.npm/
