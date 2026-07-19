@@ -1,0 +1,34 @@
+========================================================================
+             GUIDE DE DEMARRAGE RAPIDE - BAOU FINANCE v1.0.3
+========================================================================
+Voici les commandes a executer dans des terminaux separes 
+pour lancer l'integralite du projet localement.
+------------------------------------------------------------------------
+1. LE BACKEND (Express / Node.js)
+------------------------------------------------------------------------
+Ouvrez un terminal :
+cd d:\Antigravity\projet\finance\v1.0.3\backend
+npm install
+node server.js
+* Accessible sur : http://localhost:3001
+------------------------------------------------------------------------
+2. LE PORTAIL ADMINISTRATEUR (React / Vite)
+------------------------------------------------------------------------
+Ouvrez un deuxieme terminal :
+cd d:\Antigravity\projet\finance\v1.0.3\admin
+npm install
+npm run dev
+* Accessible sur : http://localhost:3000 (ou http://localhost:5173)
+------------------------------------------------------------------------
+3. BASE DE DONNEES (Supabase Cloud)
+------------------------------------------------------------------------
+Le backend est directement connecte a la base de donnees Supabase en ligne.
+Les tables (users, transactions, holdings) sont synchronisees automatiquement.
+------------------------------------------------------------------------
+4. L'APPLICATION MOBILE BAOU (Android Kotlin)
+------------------------------------------------------------------------
+- Ouvrez le dossier d:\Antigravity\projet\finance\v1.0.3 dans Android Studio.
+- Connectez votre telephone Android ou lancez l'emulateur.
+- Configurez l'adresse IP du serveur en cliquant sur l'icone d'ENGRENAGE 
+  (Parametres) en haut a droite de l'ecran de connexion mobile.
+========================================================================
