@@ -416,6 +416,19 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                             Réactiver
                           </button>
                         )}
+                        {user.whatsapp && user.whatsapp !== 'Non renseigné' && (
+                          <button
+                            onClick={() => {
+                              const cleanNum = user.whatsapp.replace(/[^0-9]/g, '');
+                              const message = encodeURIComponent(`Bonjour ${user.name}, je suis M. Cissé l'administrateur de BAOU Finance concernant votre ouverture de compte SGI.`);
+                              window.open(`https://wa.me/${cleanNum}?text=${message}`, '_blank');
+                            }}
+                            className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-bold text-[11px] rounded-lg transition-all active:scale-95 shadow-xs flex items-center gap-1"
+                            title="Envoyer un message WhatsApp au client"
+                          >
+                            💬 WhatsApp
+                          </button>
+                        )}
                         <button 
                           onClick={() => setSelectedUserForDetails(user)}
                           className="px-3 py-1 bg-[#eff4ff] hover:bg-[#ffdcc6]/40 text-[#954a00] font-sans font-bold text-[12px] rounded-lg transition-all active:scale-95 shadow-xs"
@@ -502,7 +515,21 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
                   </div>
                   <div>
                     <span className="text-[#574235]/70 text-[11px] block font-semibold">Numéro WhatsApp</span>
-                    <span className="font-bold text-emerald-700">{selectedUserForDetails.whatsapp || 'Non renseigné'}</span>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="font-bold text-emerald-700">{selectedUserForDetails.whatsapp || 'Non renseigné'}</span>
+                      {selectedUserForDetails.whatsapp && selectedUserForDetails.whatsapp !== 'Non renseigné' && (
+                        <button
+                          onClick={() => {
+                            const cleanNum = selectedUserForDetails.whatsapp.replace(/[^0-9]/g, '');
+                            const message = encodeURIComponent(`Bonjour ${selectedUserForDetails.name}, je suis M. Cissé l'administrateur de BAOU Finance concernant votre dossier d'ouverture de compte SGI.`);
+                            window.open(`https://wa.me/${cleanNum}?text=${message}`, '_blank');
+                          }}
+                          className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] rounded-lg shadow-xs transition-all flex items-center gap-1"
+                        >
+                          💬 Contacter sur WhatsApp
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

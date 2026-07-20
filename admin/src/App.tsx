@@ -248,6 +248,32 @@ export default function App() {
     triggerToast('Vous avez été déconnecté avec succès.', 'info');
   };
 
+  // ── Auto Logout after 15 minutes of inactivity ─────────────────
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
+    let inactivityTimer: NodeJS.Timeout;
+
+    const resetInactivityTimer = () => {
+      clearTimeout(inactivityTimer);
+      // 15 minutes = 15 * 60 * 1000 = 900,000 ms
+      inactivityTimer = setTimeout(() => {
+        handleLogout();
+        triggerToast('Session expirée : Déconnexion automatique après 15 minutes d\'inactivité.', 'info');
+      }, 15 * 60 * 1000);
+    };
+
+    const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+    activityEvents.forEach(event => window.addEventListener(event, resetInactivityTimer));
+
+    resetInactivityTimer();
+
+    return () => {
+      clearTimeout(inactivityTimer);
+      activityEvents.forEach(event => window.removeEventListener(event, resetInactivityTimer));
+    };
+  }, [isLoggedIn]);
+
   // ── Transaction actions (real API) ───────────────────────
   const handleApproveTransaction = async (id: string) => {
     if (!token) return;
