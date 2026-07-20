@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.example.data.local.*
 import com.example.ui.components.*
 import com.example.ui.theme.*
@@ -3098,7 +3099,7 @@ fun ProfileScreen(viewModel: BourseViewModel) {
                     contentAlignment = Alignment.Center
                 ) {
                     if (photoUri != null) {
-                        coil.compose.AsyncImage(
+                        AsyncImage(
                             model = photoUri,
                             contentDescription = "Photo de profil client",
                             contentScale = androidx.compose.ui.layout.ContentScale.Crop,
