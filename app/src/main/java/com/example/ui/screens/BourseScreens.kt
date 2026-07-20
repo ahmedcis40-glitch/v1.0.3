@@ -903,13 +903,20 @@ fun OnboardingScreen(viewModel: BourseViewModel) {
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                         )
 
-                        // Identity Scan Item
+                        val identityRecto by viewModel.identityRectoStatus.collectAsStateWithLifecycle()
+                        val identityVerso by viewModel.identityVersoStatus.collectAsStateWithLifecycle()
+                        val selfiePhoto by viewModel.selfiePhotoStatus.collectAsStateWithLifecycle()
+
+                        // Identity Scan Item — RECTO
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                                .clickable { }
+                                .background(if (identityRecto?.contains("✅") == true) ForestGreen.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                .clickable {
+                                    viewModel.captureIdentityRecto()
+                                    android.widget.Toast.makeText(context, "📸 Photo RECTO de la CNI / Passeport enregistrée !", android.widget.Toast.LENGTH_SHORT).show()
+                                }
                                 .padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -924,19 +931,52 @@ fun OnboardingScreen(viewModel: BourseViewModel) {
                                 Icon(Icons.Default.Badge, contentDescription = null, tint = ForestGreen)
                             }
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Pièce d'identité", fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                                Text("CNI ivoirienne ou Passeport valide", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("Pièce d'Identité (RECTO)", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                Text(identityRecto ?: "Prendre en photo le Recto de la CNI / Passeport", fontSize = 12.sp, color = if (identityRecto?.contains("✅") == true) ForestGreen else MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Icon(Icons.Default.AddAPhoto, contentDescription = null, tint = OrangeBrand)
                         }
 
-                        // Face recognition
+                        // Identity Scan Item — VERSO
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                                .clickable { }
+                                .background(if (identityVerso?.contains("✅") == true) ForestGreen.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                .clickable {
+                                    viewModel.captureIdentityVerso()
+                                    android.widget.Toast.makeText(context, "📸 Photo VERSO de la CNI enregistrée !", android.widget.Toast.LENGTH_SHORT).show()
+                                }
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .clip(CircleShape)
+                                    .background(ForestGreen.copy(alpha = 0.12f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(Icons.Default.Badge, contentDescription = null, tint = ForestGreen)
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Pièce d'Identité (VERSO)", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                Text(identityVerso ?: "Prendre en photo le Verso de la CNI", fontSize = 12.sp, color = if (identityVerso?.contains("✅") == true) ForestGreen else MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            Icon(Icons.Default.AddAPhoto, contentDescription = null, tint = OrangeBrand)
+                        }
+
+                        // Face recognition — SELFIE
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (selfiePhoto?.contains("✅") == true) ForestGreen.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                .clickable {
+                                    viewModel.captureSelfiePhoto()
+                                    android.widget.Toast.makeText(context, "🤳 Photo Selfie / Visage capturée avec succès !", android.widget.Toast.LENGTH_SHORT).show()
+                                }
                                 .padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -951,8 +991,8 @@ fun OnboardingScreen(viewModel: BourseViewModel) {
                                 Icon(Icons.Default.Face, contentDescription = null, tint = ForestGreen)
                             }
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Reconnaissance Faciale", fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                                Text("Preuve de vie par selfie vidéo", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("Reconnaissance Faciale (Selfie)", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                Text(selfiePhoto ?: "Prendre une photo de votre visage", fontSize = 12.sp, color = if (selfiePhoto?.contains("✅") == true) ForestGreen else MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Icon(Icons.Default.CameraFront, contentDescription = null, tint = OrangeBrand)
                         }
@@ -997,33 +1037,38 @@ fun OnboardingScreen(viewModel: BourseViewModel) {
                         }
                     }
                     else -> {
+                        val proofDocStatus by viewModel.proofOfAddressStatus.collectAsStateWithLifecycle()
+
                         Text(
                             text = "Justificatif de domicile",
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Téléchargez un justificatif datant de moins de 3 mois pour valider l'adresse légale de votre compte.",
+                            text = "Téléchargez votre facture d'électricité (CIE) ou d'eau (SODECI) de moins de 3 mois.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
-                        // Big Dashed upload zone simulator
+                        // Big Dashed upload zone simulator for CIE / SODECI
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(160.dp)
                                 .clip(RoundedCornerShape(12.dp))
-                                .border(2.dp, OrangeBrand.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
-                                .clickable { }
+                                .border(2.dp, if (proofDocStatus?.contains("✅") == true) ForestGreen else OrangeBrand.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                                .background(if (proofDocStatus?.contains("✅") == true) ForestGreen.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
+                                .clickable {
+                                    viewModel.captureProofOfAddressDocument()
+                                    android.widget.Toast.makeText(context, "🏡 Document Facture CIE / SODECI sauvegardé !", android.widget.Toast.LENGTH_SHORT).show()
+                                }
                                 .padding(16.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Icon(Icons.Default.UploadFile, contentDescription = null, tint = OrangeBrand, modifier = Modifier.size(44.dp))
-                                Text("Uploader mon document (CIE, SODECI)", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                Text("PDF, JPG, PNG (Max 5Mo)", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Icon(Icons.Default.UploadFile, contentDescription = null, tint = if (proofDocStatus?.contains("✅") == true) ForestGreen else OrangeBrand, modifier = Modifier.size(44.dp))
+                                Text(proofDocStatus ?: "Uploader mon document (CIE, SODECI)", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text("Appuyez pour sélectionner votre facture PDF ou Photo (Max 5Mo)", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
 

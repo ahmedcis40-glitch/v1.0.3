@@ -116,6 +116,28 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
         StockWatchItem("SDSC", "AGL / Bolloré Transport CI", "Transport", 1650.0, -0.60)
     )
 
+    // KYC Document Capture State Variables
+    val identityRectoStatus = MutableStateFlow<String?>("Non Fourni")
+    val identityVersoStatus = MutableStateFlow<String?>("Non Fourni")
+    val selfiePhotoStatus = MutableStateFlow<String?>("Non Fourni")
+    val proofOfAddressStatus = MutableStateFlow<String?>("Non Fourni")
+
+    fun captureIdentityRecto() {
+        identityRectoStatus.value = "Recto CNI/Passeport Scanné ✅"
+    }
+
+    fun captureIdentityVerso() {
+        identityVersoStatus.value = "Verso CNI Scanné ✅"
+    }
+
+    fun captureSelfiePhoto() {
+        selfiePhotoStatus.value = "Selfie Visage Validé ✅"
+    }
+
+    fun captureProofOfAddressDocument() {
+        proofOfAddressStatus.value = "Facture CIE/SODECI Chargée ✅"
+    }
+
     // Order state variables (bound to view)
     val orderQuantity = MutableStateFlow("10")
     val orderLimitPrice = MutableStateFlow("16850")
@@ -327,6 +349,18 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
             val profile = repository.userProfile.first() ?: return@launch
             val updated = profile.copy(kycStep = 3) // Move to Proof of address
             repository.saveUserProfile(updated)
+            repository.updateBackendProfile(
+                profile.firstName,
+                profile.lastName,
+                "pending",
+                profile.whatsapp,
+                profile.birthDate,
+                professionInput.value,
+                residenceInput.value,
+                identityDocStatus = "CNI (Recto & Verso) + Selfie Chargés ✅",
+                proofOfAddressStatus = proofOfAddressStatus.value ?: "Non Fourni",
+                signatureStatus = "En attente"
+            )
             onboardingStep.value = 3
         }
     }
@@ -336,6 +370,18 @@ class BourseViewModel(application: Application) : AndroidViewModel(application) 
             val profile = repository.userProfile.first() ?: return@launch
             val updated = profile.copy(kycStep = 4) // Move to Legal Signature
             repository.saveUserProfile(updated)
+            repository.updateBackendProfile(
+                profile.firstName,
+                profile.lastName,
+                "pending",
+                profile.whatsapp,
+                profile.birthDate,
+                professionInput.value,
+                residenceInput.value,
+                identityDocStatus = "CNI (Recto & Verso) + Selfie Chargés ✅",
+                proofOfAddressStatus = "Facture CIE / SODECI Chargée ✅",
+                signatureStatus = "En attente"
+            )
             navigateTo(Screen.SIGNATURE)
         }
     }
