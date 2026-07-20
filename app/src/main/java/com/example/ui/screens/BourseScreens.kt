@@ -699,6 +699,7 @@ fun WelcomeScreen(viewModel: BourseViewModel) {
 // 2. ONBOARDING SCREEN
 @Composable
 fun OnboardingScreen(viewModel: BourseViewModel) {
+    val context = LocalContext.current
     val step by viewModel.onboardingStep.collectAsStateWithLifecycle()
 
     val firstName by viewModel.firstNameInput.collectAsStateWithLifecycle()

@@ -59,7 +59,10 @@ data class UpdateProfileRequest(
     val whatsapp: String? = null,
     val birthDate: String? = null,
     val profession: String? = null,
-    val residence: String? = null
+    val residence: String? = null,
+    val identityDocStatus: String? = null,
+    val proofOfAddressStatus: String? = null,
+    val signatureStatus: String? = null
 )
 
 data class RegisterRequest(val email: String, val password: String, val firstName: String)

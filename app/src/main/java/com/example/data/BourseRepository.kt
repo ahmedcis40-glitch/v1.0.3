@@ -61,7 +61,10 @@ class BourseRepository(private val bourseDao: BourseDao) {
         whatsapp: String? = null,
         birthDate: String? = null,
         profession: String? = null,
-        residence: String? = null
+        residence: String? = null,
+        identityDocStatus: String? = null,
+        proofOfAddressStatus: String? = null,
+        signatureStatus: String? = null
     ): Boolean {
         val currentToken = token ?: return false
         return try {
@@ -74,7 +77,10 @@ class BourseRepository(private val bourseDao: BourseDao) {
                     whatsapp,
                     birthDate,
                     profession,
-                    residence
+                    residence,
+                    identityDocStatus,
+                    proofOfAddressStatus,
+                    signatureStatus
                 )
             )
             response.isSuccessful
